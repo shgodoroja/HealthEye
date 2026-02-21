@@ -226,7 +226,13 @@ struct SettingsView: View {
 
         panel.begin { response in
             guard response == .OK, let url = panel.url else { return }
-            try? data.write(to: url)
+            do {
+                try data.write(to: url)
+            } catch {
+                DispatchQueue.main.async {
+                    exportError = "Failed to save file: \(error.localizedDescription)"
+                }
+            }
         }
     }
 
@@ -239,7 +245,7 @@ struct SettingsView: View {
 
     private func deleteAllData() {
         AnalyticsService.track("data_deleted", properties: ["scope": "all"])
-        for client in activeClients {
+        for client in allClients {
             modelContext.delete(client)
         }
     }

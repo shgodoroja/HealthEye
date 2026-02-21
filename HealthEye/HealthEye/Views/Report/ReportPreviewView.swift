@@ -188,19 +188,22 @@ struct ReportPreviewView: View {
             do {
                 try PDFReportGenerator.save(data: pdfData, to: url)
 
-                // Persist GeneratedReport record
-                let report = GeneratedReport(
-                    client: client,
-                    weekStart: weekStart,
-                    weekEnd: weekEnd,
-                    pdfPath: url.path
-                )
-                modelContext.insert(report)
+                DispatchQueue.main.async {
+                    let report = GeneratedReport(
+                        client: client,
+                        weekStart: weekStart,
+                        weekEnd: weekEnd,
+                        pdfPath: url.path
+                    )
+                    modelContext.insert(report)
 
-                AnalyticsService.track("report_exported")
-                state = .exported(url.path)
+                    AnalyticsService.track("report_exported")
+                    state = .exported(url.path)
+                }
             } catch {
-                state = .error("Failed to save: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    state = .error("Failed to save: \(error.localizedDescription)")
+                }
             }
         }
     }

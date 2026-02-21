@@ -9,6 +9,7 @@ enum ClientFormMode {
 struct ClientFormView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Query private var accounts: [CoachAccount]
 
     let mode: ClientFormMode
 
@@ -118,6 +119,7 @@ struct ClientFormView: View {
             client.notes = notes.isEmpty ? nil : notes
         } else {
             let client = Client(
+                coach: accounts.first,
                 displayName: trimmedName,
                 timezone: timezone,
                 notes: notes.isEmpty ? nil : notes

@@ -41,7 +41,7 @@ struct CompletenessCalculator {
     static func mondayOfWeek(containing date: Date) -> Date {
         let cal = calendar
         let components = cal.dateComponents([.yearForWeekOfYear, .weekOfYear], from: date)
-        return cal.date(from: components)!
+        return cal.date(from: components) ?? cal.startOfDay(for: date)
     }
 
     private static func calculateForWeek(weekStart: Date, days: [MetricDaily]) -> WeeklyCompleteness {
