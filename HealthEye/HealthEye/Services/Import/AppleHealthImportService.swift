@@ -65,6 +65,20 @@ final class AppleHealthImportService {
             }
             let parsedData = try parser.parse(fileURL: xmlURL)
 
+            // Clean up extracted temp directory if it was a zip
+            if xmlURL != fileURL, xmlURL.path.contains("HealthEyeImport_") {
+                let tempDir = xmlURL.deletingLastPathComponent()
+                // Walk up to the HealthEyeImport_ directory
+                var dir = tempDir
+                while !dir.lastPathComponent.hasPrefix("HealthEyeImport_"),
+                      dir.pathComponents.count > 1 {
+                    dir = dir.deletingLastPathComponent()
+                }
+                if dir.lastPathComponent.hasPrefix("HealthEyeImport_") {
+                    try? FileManager.default.removeItem(at: dir)
+                }
+            }
+
             guard !parsedData.dailyMetrics.isEmpty else {
                 state = .failed("No health data found in the file.")
                 return

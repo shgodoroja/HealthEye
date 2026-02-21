@@ -97,7 +97,7 @@ struct ClientFormView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This client will be hidden from the dashboard. You can restore them later.")
+            Text("This client will be hidden from the dashboard. Their data will be preserved.")
         }
         .alert("Delete Client Permanently?", isPresented: $showDeleteConfirmation) {
             Button("Delete", role: .destructive) {

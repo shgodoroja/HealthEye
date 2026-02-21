@@ -27,7 +27,10 @@ struct ReportPreviewView: View {
     }
 
     private var weekEnd: Date {
-        Calendar.current.date(byAdding: .day, value: 6, to: weekStart) ?? weekStart
+        var cal = Calendar(identifier: .iso8601)
+        cal.firstWeekday = 2
+        cal.timeZone = TimeZone(identifier: "UTC")!
+        return cal.date(byAdding: .day, value: 6, to: weekStart) ?? weekStart
     }
 
     var body: some View {
