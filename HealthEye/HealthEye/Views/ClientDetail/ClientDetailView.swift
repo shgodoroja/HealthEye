@@ -9,6 +9,12 @@ struct ClientDetailView: View {
     @State private var showingEditForm = false
     @State private var weeklyCompleteness: [WeeklyCompleteness] = []
 
+    // M2 state
+    @State private var metricTrend: MetricTrend?
+    @State private var attentionResult: AttentionScoreResult?
+    @State private var activeAlerts: [AlertResult] = []
+    @State private var narrative: NarrativeResult?
+
     private var sortedImports: [ClientImport] {
         client.imports.sorted { $0.importedAt > $1.importedAt }
     }
@@ -17,34 +23,31 @@ struct ClientDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 // Header
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text(client.displayName)
-                            .font(.title)
-                            .fontWeight(.bold)
+                headerSection
 
-                        Text(client.timezone)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                Divider()
 
-                        if let notes = client.notes, !notes.isEmpty {
-                            Text(notes)
-                                .font(.callout)
-                                .foregroundStyle(.secondary)
-                                .padding(.top, 2)
-                        }
-                    }
+                // Attention Score Card
+                if let result = attentionResult {
+                    ScoreBreakdownView(result: result)
+                }
 
-                    Spacer()
+                // Weekly Narrative
+                if let narrative = narrative {
+                    WeeklyNarrativeView(narrative: narrative.summary)
+                }
 
-                    Button("Edit") {
-                        showingEditForm = true
-                    }
+                // Metric Trend Cards
+                if let trend = metricTrend {
+                    metricTrendSection(trend: trend)
+                }
 
-                    Button("Import Health Data") {
-                        showingImportWizard = true
-                    }
-                    .buttonStyle(.borderedProminent)
+                // Alerts Panel
+                AlertPanelView(alerts: activeAlerts)
+
+                // Message Helper
+                if let narrative = narrative, !narrative.suggestedMessages.isEmpty {
+                    MessageHelperView(messages: narrative.suggestedMessages)
                 }
 
                 Divider()
@@ -59,14 +62,98 @@ struct ClientDetailView: View {
             }
             .padding(24)
         }
-        .sheet(isPresented: $showingImportWizard, onDismiss: refreshCompleteness) {
+        .sheet(isPresented: $showingImportWizard, onDismiss: refreshAll) {
             ImportWizardView(client: client)
         }
         .sheet(isPresented: $showingEditForm) {
             ClientFormView(mode: .edit(client))
         }
         .onAppear {
-            refreshCompleteness()
+            refreshAll()
+        }
+    }
+
+    private var headerSection: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(client.displayName)
+                    .font(.title)
+                    .fontWeight(.bold)
+
+                Text(client.timezone)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                if let notes = client.notes, !notes.isEmpty {
+                    Text(notes)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 2)
+                }
+            }
+
+            Spacer()
+
+            Button("Edit") {
+                showingEditForm = true
+            }
+
+            Button("Import Health Data") {
+                showingImportWizard = true
+            }
+            .buttonStyle(.borderedProminent)
+        }
+    }
+
+    private func metricTrendSection(trend: MetricTrend) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Metric Trends")
+                .font(.headline)
+
+            LazyVGrid(columns: [
+                GridItem(.flexible()),
+                GridItem(.flexible()),
+            ], spacing: 8) {
+                MetricTrendCardView(
+                    metricName: "Sleep",
+                    unit: "min",
+                    recentAvg: trend.recent.sleepAvg,
+                    baselineAvg: trend.baseline.sleepAvg,
+                    delta: trend.sleepDelta
+                )
+
+                MetricTrendCardView(
+                    metricName: "HRV",
+                    unit: "ms",
+                    recentAvg: trend.recent.hrvAvg,
+                    baselineAvg: trend.baseline.hrvAvg,
+                    delta: trend.hrvDelta
+                )
+
+                MetricTrendCardView(
+                    metricName: "Resting HR",
+                    unit: "bpm",
+                    recentAvg: trend.recent.restingHrAvg,
+                    baselineAvg: trend.baseline.restingHrAvg,
+                    delta: trend.restingHrDelta
+                )
+
+                MetricTrendCardView(
+                    metricName: "Workout",
+                    unit: "min",
+                    recentAvg: trend.recent.workoutAvg,
+                    baselineAvg: trend.baseline.workoutAvg,
+                    delta: trend.workoutDelta
+                )
+
+                MetricTrendCardView(
+                    metricName: "Steps",
+                    unit: "steps",
+                    recentAvg: trend.recent.stepsAvg,
+                    baselineAvg: trend.baseline.stepsAvg,
+                    delta: trend.stepsDelta
+                )
+            }
         }
     }
 
@@ -150,11 +237,15 @@ struct ClientDetailView: View {
         }
     }
 
+    private func refreshAll() {
+        refreshCompleteness()
+        refreshScoring()
+    }
+
     private func refreshCompleteness() {
         let metrics = client.metrics
         weeklyCompleteness = CompletenessCalculator.calculateWeeklyCompleteness(metrics: metrics)
 
-        // Save completeness records
         do {
             try CompletenessCalculator.saveCompleteness(
                 weeklyData: weeklyCompleteness,
@@ -162,7 +253,56 @@ struct ClientDetailView: View {
                 context: modelContext
             )
         } catch {
-            // Non-fatal — UI still works from computed data
+            // Non-fatal
         }
+    }
+
+    private func refreshScoring() {
+        let metrics = client.metrics
+        let trend = BaselineEngine.computeTrend(metrics: metrics)
+        self.metricTrend = trend
+
+        // Calculate completeness
+        let completeness = averageCompleteness()
+
+        // Attention score
+        let scoreResult = AttentionScoreCalculator.calculate(
+            trend: trend,
+            completenessScore: completeness
+        )
+        self.attentionResult = scoreResult
+
+        // Alerts
+        let alerts = AlertRuleEngine.evaluate(trend: trend)
+        self.activeAlerts = alerts
+
+        // Narrative
+        let narrativeResult = WeeklyNarrativeGenerator.generate(trend: trend, alerts: alerts)
+        self.narrative = narrativeResult
+
+        // Persist
+        let weekStart = CompletenessCalculator.mondayOfWeek(containing: Date())
+        do {
+            try AttentionScoreCalculator.saveScore(
+                result: scoreResult,
+                client: client,
+                weekStart: weekStart,
+                context: modelContext
+            )
+            try AlertRuleEngine.saveAlerts(
+                alerts: alerts,
+                client: client,
+                weekStart: weekStart,
+                context: modelContext
+            )
+        } catch {
+            // Non-fatal
+        }
+    }
+
+    private func averageCompleteness() -> Double {
+        let records = client.completenessRecords
+        guard !records.isEmpty else { return 0 }
+        return records.map(\.completenessScore).reduce(0, +) / Double(records.count)
     }
 }
