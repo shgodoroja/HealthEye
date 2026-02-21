@@ -107,17 +107,25 @@ struct ContentView: View {
         .sheet(isPresented: $showingSettings) {
             if let account {
                 SettingsView(account: account)
+            } else {
+                Text("Loading…").onAppear { showingSettings = false }
             }
         }
         .sheet(isPresented: $showingPaywall) {
             if let account {
                 PaywallView(account: account)
+            } else {
+                Text("Loading…").onAppear { showingPaywall = false }
             }
         }
         .onAppear {
             refreshScores()
         }
         .onChange(of: allClients.count) {
+            // Clear selection if the selected client was deleted
+            if let selected = selectedClient, !allClients.contains(where: { $0.id == selected.id }) {
+                selectedClient = nil
+            }
             refreshScores()
         }
     }

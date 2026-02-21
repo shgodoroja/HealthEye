@@ -72,6 +72,7 @@ struct ImportWizardView: View {
 
     private func startImport() {
         guard let fileURL = selectedFileURL else { return }
+        guard currentStep != .progress else { return }
 
         let container = modelContext.container
         let service = AppleHealthImportService(modelContainer: container)

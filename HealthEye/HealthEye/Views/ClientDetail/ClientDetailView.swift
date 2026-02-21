@@ -81,6 +81,8 @@ struct ClientDetailView: View {
         .sheet(isPresented: $showingPaywall) {
             if let account {
                 PaywallView(account: account)
+            } else {
+                Text("Loading…").onAppear { showingPaywall = false }
             }
         }
         .onAppear {
