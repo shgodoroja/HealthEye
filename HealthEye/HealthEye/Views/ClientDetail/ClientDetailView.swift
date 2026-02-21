@@ -3,11 +3,13 @@ import SwiftData
 
 struct ClientDetailView: View {
     @Environment(\.modelContext) private var modelContext
+    @Query private var accounts: [CoachAccount]
     let client: Client
 
     @State private var showingImportWizard = false
     @State private var showingEditForm = false
     @State private var showingReportPreview = false
+    @State private var showingPaywall = false
     @State private var weeklyCompleteness: [WeeklyCompleteness] = []
 
     // M2 state
@@ -15,6 +17,10 @@ struct ClientDetailView: View {
     @State private var attentionResult: AttentionScoreResult?
     @State private var activeAlerts: [AlertResult] = []
     @State private var narrative: NarrativeResult?
+
+    private var account: CoachAccount? {
+        accounts.first
+    }
 
     private var sortedImports: [ClientImport] {
         client.imports.sorted { $0.importedAt > $1.importedAt }
@@ -72,6 +78,11 @@ struct ClientDetailView: View {
         .sheet(isPresented: $showingReportPreview) {
             ReportPreviewView(client: client)
         }
+        .sheet(isPresented: $showingPaywall) {
+            if let account {
+                PaywallView(account: account)
+            }
+        }
         .onAppear {
             refreshAll()
         }
@@ -99,7 +110,11 @@ struct ClientDetailView: View {
             Spacer()
 
             Button("Generate Report") {
-                showingReportPreview = true
+                if let account, TrialManager.canGenerateReports(account: account) {
+                    showingReportPreview = true
+                } else {
+                    showingPaywall = true
+                }
             }
 
             Button("Edit") {

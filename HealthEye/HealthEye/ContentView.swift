@@ -5,6 +5,11 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Client.displayName)
     private var allClients: [Client]
+    @Query private var accounts: [CoachAccount]
+
+    private var account: CoachAccount? {
+        accounts.first
+    }
 
     private var clients: [Client] {
         allClients.filter { $0.status == .active }
@@ -12,6 +17,8 @@ struct ContentView: View {
 
     @State private var selectedClient: Client?
     @State private var showingAddClient = false
+    @State private var showingSettings = false
+    @State private var showingPaywall = false
     @State private var selectedFilter: AttentionBucket?
     @State private var clientScores: [UUID: Double] = [:]
 
@@ -45,7 +52,13 @@ struct ContentView: View {
                 selectedClient: $selectedClient,
                 selectedFilter: $selectedFilter,
                 clientScores: clientScores,
-                onAddClient: { showingAddClient = true }
+                onAddClient: {
+                    if let account, TrialManager.canAddClient(account: account, currentActiveCount: clients.count) {
+                        showingAddClient = true
+                    } else {
+                        showingPaywall = true
+                    }
+                }
             )
             .navigationSplitViewColumnWidth(min: 220, ideal: 280)
         } detail: {
@@ -59,8 +72,47 @@ struct ContentView: View {
                 )
             }
         }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    if let account, TrialManager.canAddClient(account: account, currentActiveCount: clients.count) {
+                        showingAddClient = true
+                    } else {
+                        showingPaywall = true
+                    }
+                } label: {
+                    Label("Add Client", systemImage: "plus")
+                }
+            }
+
+            ToolbarItem(placement: .automatic) {
+                Button {
+                    showingPaywall = true
+                } label: {
+                    Label("Plans", systemImage: "creditcard")
+                }
+            }
+
+            ToolbarItem(placement: .automatic) {
+                Button {
+                    showingSettings = true
+                } label: {
+                    Label("Settings", systemImage: "gearshape")
+                }
+            }
+        }
         .sheet(isPresented: $showingAddClient) {
             ClientFormView(mode: .create)
+        }
+        .sheet(isPresented: $showingSettings) {
+            if let account {
+                SettingsView(account: account)
+            }
+        }
+        .sheet(isPresented: $showingPaywall) {
+            if let account {
+                PaywallView(account: account)
+            }
         }
         .onAppear {
             refreshScores()

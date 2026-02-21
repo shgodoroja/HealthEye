@@ -45,13 +45,6 @@ struct ClientListView: View {
                 }
             }
         }
-        .toolbar {
-            ToolbarItem {
-                Button(action: onAddClient) {
-                    Label("Add Client", systemImage: "plus")
-                }
-            }
-        }
         .navigationTitle("Clients")
     }
 }

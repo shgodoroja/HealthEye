@@ -6,12 +6,18 @@ import UniformTypeIdentifiers
 struct ReportPreviewView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Query private var accounts: [CoachAccount]
 
     let client: Client
 
     @State private var weekStart: Date = CompletenessCalculator.mondayOfWeek(containing: Date())
     @State private var state: ReportState = .loading
     @State private var pdfData: Data?
+    @State private var showingPaywall = false
+
+    private var account: CoachAccount? {
+        accounts.first
+    }
 
     private enum ReportState: Equatable {
         case loading
@@ -72,6 +78,11 @@ struct ReportPreviewView: View {
                 Spacer()
             }
         }
+        .sheet(isPresented: $showingPaywall) {
+            if let account {
+                PaywallView(account: account)
+            }
+        }
         .frame(minWidth: 700, minHeight: 600)
         .onAppear {
             generateReport()
@@ -99,7 +110,11 @@ struct ReportPreviewView: View {
             }
 
             Button("Export PDF") {
-                exportPDF()
+                if let account, TrialManager.canGenerateReports(account: account) {
+                    exportPDF()
+                } else {
+                    showingPaywall = true
+                }
             }
             .buttonStyle(.borderedProminent)
             .disabled(pdfData == nil)
@@ -182,6 +197,7 @@ struct ReportPreviewView: View {
                 )
                 modelContext.insert(report)
 
+                AnalyticsService.track("report_exported")
                 state = .exported(url.path)
             } catch {
                 state = .error("Failed to save: \(error.localizedDescription)")

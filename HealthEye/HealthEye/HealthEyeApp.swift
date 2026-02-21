@@ -26,6 +26,10 @@ struct HealthEyeApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onAppear {
+                    let context = sharedModelContainer.mainContext
+                    TrialManager.ensureAccount(context: context)
+                }
         }
         .modelContainer(sharedModelContainer)
     }

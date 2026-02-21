@@ -16,6 +16,7 @@ struct ClientFormView: View {
     @State private var timezone: String = TimeZone.current.identifier
     @State private var notes: String = ""
     @State private var showArchiveConfirmation = false
+    @State private var showDeleteConfirmation = false
 
     private var isEditing: Bool {
         if case .edit = mode { return true }
@@ -55,6 +56,10 @@ struct ClientFormView: View {
                         Button("Archive Client", role: .destructive) {
                             showArchiveConfirmation = true
                         }
+
+                        Button("Delete Permanently", role: .destructive) {
+                            showDeleteConfirmation = true
+                        }
                     }
                 }
             }
@@ -93,6 +98,14 @@ struct ClientFormView: View {
         } message: {
             Text("This client will be hidden from the dashboard. You can restore them later.")
         }
+        .alert("Delete Client Permanently?", isPresented: $showDeleteConfirmation) {
+            Button("Delete", role: .destructive) {
+                deleteClient()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will permanently delete this client and all associated data. This cannot be undone.")
+        }
     }
 
     private func save() {
@@ -118,6 +131,14 @@ struct ClientFormView: View {
     private func archiveClient() {
         if let client = editingClient {
             client.status = .archived
+        }
+        dismiss()
+    }
+
+    private func deleteClient() {
+        if let client = editingClient {
+            AnalyticsService.track("data_deleted", properties: ["scope": "client"])
+            modelContext.delete(client)
         }
         dismiss()
     }
