@@ -3,7 +3,9 @@
     "allow": [
       "Bash(xcodebuild:*)",
       "Bash(git rm:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git status:*)",
+      "Bash(git add:*)"
     ]
   }
 }

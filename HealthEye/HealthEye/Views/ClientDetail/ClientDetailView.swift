@@ -7,6 +7,7 @@ struct ClientDetailView: View {
 
     @State private var showingImportWizard = false
     @State private var showingEditForm = false
+    @State private var showingReportPreview = false
     @State private var weeklyCompleteness: [WeeklyCompleteness] = []
 
     // M2 state
@@ -68,6 +69,9 @@ struct ClientDetailView: View {
         .sheet(isPresented: $showingEditForm) {
             ClientFormView(mode: .edit(client))
         }
+        .sheet(isPresented: $showingReportPreview) {
+            ReportPreviewView(client: client)
+        }
         .onAppear {
             refreshAll()
         }
@@ -93,6 +97,10 @@ struct ClientDetailView: View {
             }
 
             Spacer()
+
+            Button("Generate Report") {
+                showingReportPreview = true
+            }
 
             Button("Edit") {
                 showingEditForm = true
