@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://healtheye.app/sitemap.xml

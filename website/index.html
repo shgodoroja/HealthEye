@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en" data-site-root="/">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HealthEye for Coaches | Apple Watch Health Data Analysis on Mac</title>
+  <meta name="description" content="Analyze Apple Watch and Apple Health exports on Mac, spot clients who need attention, and generate weekly coaching reports in minutes. Privacy-first and explainable.">
+  <link rel="canonical" href="https://healtheye.app/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Apple Health Data Analysis for Coaches on Mac | HealthEye">
+  <meta property="og:description" content="Turn Apple Health exports into weekly client insights, explainable scores, and coach-ready reports.">
+  <meta property="og:url" content="https://healtheye.app/">
+  <meta property="og:site_name" content="HealthEye">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#0e8a77">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://healtheye.app/#organization",
+        "name": "HealthEye",
+        "url": "https://healtheye.app/"
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://healtheye.app/#website",
+        "url": "https://healtheye.app/",
+        "name": "HealthEye",
+        "publisher": { "@id": "https://healtheye.app/#organization" }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://healtheye.app/#software",
+        "name": "HealthEye",
+        "operatingSystem": "macOS",
+        "applicationCategory": "HealthApplication",
+        "description": "Coach-first Mac app for analyzing Apple Health exports, ranking clients by attention, and generating weekly coaching reports.",
+        "url": "https://healtheye.app/",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    ]
+  }
+  </script>
+  <script src="/assets/site.js" defer></script>
+</head>
+<body data-page="home" data-page-title="HealthEye Home" data-sticky-cta-label="Download for Mac" data-sticky-cta-href="/download/">
+  <div class="page-shell">
+    <div data-site-header></div>
+
+    <main class="page-main">
+      <section class="hero">
+        <div class="container hero__grid">
+          <div class="hero__copy reveal">
+            <div class="eyebrow">For Independent Coaches</div>
+            <h1>Spot which clients need attention this week and generate reports in minutes.</h1>
+            <p class="lead">HealthEye turns Apple Health exports from iPhone into a Mac dashboard with explainable client scores, trend changes, and one-click weekly coaching reports.</p>
+            <div class="btn-row" style="margin: 1rem 0 .4rem;">
+              <a class="btn btn--primary" href="/download/" data-track="hero_download_click">Download for Mac</a>
+              <a class="btn btn--ghost" href="#demo" data-track="hero_demo_click">Watch 90-Second Demo</a>
+            </div>
+            <div class="inline-links">
+              <a href="/sample-report/" data-track="hero_sample_report_click">View Sample Report</a>
+              <a href="/guides/apple-health-export-to-csv/">See How Import Works</a>
+            </div>
+            <p class="trust-line" style="margin-top: .9rem;">Privacy-first. Local analysis. Data export and deletion controls included. Not a medical device.</p>
+          </div>
+
+          <div class="hero__panel reveal delay-1" aria-label="HealthEye dashboard preview">
+            <div class="hero-mock">
+              <div class="mock-toolbar">
+                <div>
+                  <div class="kicker">Monday Triage</div>
+                  <strong>Client Attention Dashboard</strong>
+                </div>
+                <div class="mock-pills">
+                  <span class="pill">100 clients</span>
+                  <span class="pill pill--high">12 high</span>
+                  <span class="pill pill--ok">Reports ready</span>
+                </div>
+              </div>
+
+              <div class="mock-dashboard">
+                <div class="mock-card">
+                  <div style="display:flex;justify-content:space-between;gap:.75rem;align-items:center;margin-bottom:.55rem;">
+                    <strong>Prioritized client list</strong>
+                    <span class="small-note">Sorted by attention score</span>
+                  </div>
+                  <div class="client-list">
+                    <div class="client-row">
+                      <div>
+                        <div class="client-row__name">Alex M.</div>
+                        <div class="client-row__meta">Recovery risk: HRV down, RHR up, sleep down</div>
+                        <div class="spark" aria-hidden="true"></div>
+                      </div>
+                      <div class="score-chip score-chip--high">82</div>
+                    </div>
+                    <div class="client-row">
+                      <div>
+                        <div class="client-row__name">Jamie R.</div>
+                        <div class="client-row__meta">Workout volume drop and low step adherence</div>
+                        <div class="spark" aria-hidden="true" style="opacity:.75"></div>
+                      </div>
+                      <div class="score-chip score-chip--med">61</div>
+                    </div>
+                    <div class="client-row">
+                      <div>
+                        <div class="client-row__name">Chris L.</div>
+                        <div class="client-row__meta">Stable week, report already generated</div>
+                        <div class="spark" aria-hidden="true" style="opacity:.58"></div>
+                      </div>
+                      <div class="score-chip score-chip--low">28</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="stat-grid">
+                  <div class="mock-card">
+                    <strong style="display:block;margin-bottom:.55rem;">Explainable score drivers</strong>
+                    <div class="stat">
+                      <div class="stat__top"><span class="stat__label">Sleep trend</span><span class="stat__delta stat__delta--down">-12%</span></div>
+                      <div class="small-note">Recent vs 28-day baseline</div>
+                    </div>
+                    <div class="stat">
+                      <div class="stat__top"><span class="stat__label">HRV trend</span><span class="stat__delta stat__delta--down">-15%</span></div>
+                      <div class="small-note">Completeness: 6/7 days</div>
+                    </div>
+                    <div class="stat">
+                      <div class="stat__top"><span class="stat__label">Resting HR</span><span class="stat__delta stat__delta--warn">+9%</span></div>
+                      <div class="small-note">Flagged by AR-001</div>
+                    </div>
+                  </div>
+
+                  <div class="mock-card">
+                    <strong style="display:block;margin-bottom:.55rem;">Report workflow</strong>
+                    <ul class="list-check">
+                      <li>Check completeness before score</li>
+                      <li>Review weekly change narrative</li>
+                      <li>Generate PDF report</li>
+                      <li>Copy coach-ready message</li>
+                    </ul>
+                    <a class="btn btn--accent" href="/sample-report/" style="margin-top:.65rem;width:100%;" data-track="sample_report_click">View Sample Report</a>
+                  </div>
+                </div>
+              </div>
+
+              <p class="small-note">Your Monday coaching dashboard: ranked clients, clear score breakdowns, and report status at a glance.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="band" aria-label="Key trust and workflow traits">
+        <div class="container band__row">
+          <span class="band__badge">Apple Health export workflow</span>
+          <span class="band__badge">Mac-first analysis</span>
+          <span class="band__badge">Explainable scoring</span>
+          <span class="band__badge">Data completeness checks</span>
+          <span class="band__badge">Weekly coach reports</span>
+          <span class="band__badge">Privacy-first local analysis</span>
+        </div>
+      </section>
+
+      <section class="section" id="why">
+        <div class="container">
+          <div class="section__head reveal">
+            <h2>Built for the weekly coaching workflow, not spreadsheet cleanup</h2>
+            <p>Most coaches do not need another data app. They need a faster way to answer three questions every week: Who needs attention now? What changed? What should I send this client today?</p>
+          </div>
+          <div class="grid-3">
+            <article class="card reveal delay-1">
+              <h3>See who needs attention first</h3>
+              <p>Rank clients by attention score so you can start with the people most likely to need a check-in this week.</p>
+            </article>
+            <article class="card reveal delay-2">
+              <h3>Understand what changed</h3>
+              <p>Review sleep, HRV, resting heart rate, activity, and steps with clear recent vs baseline deltas and visible rule triggers.</p>
+            </article>
+            <article class="card reveal delay-3">
+              <h3>Send something useful fast</h3>
+              <p>Generate a weekly report and copy a coach-ready message without rebuilding charts in Excel.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="demo">
+        <div class="container split">
+          <div class="proof-panel reveal">
+            <div class="kicker">How It Works</div>
+            <h2>Apple Health export on iPhone. Analysis and reporting on Mac.</h2>
+            <div class="timeline" style="margin-top:1rem;">
+              <div class="timeline__step">
+                <div class="timeline__step-index">1</div>
+                <div>
+                  <h3>Export from Apple Health on iPhone</h3>
+                  <p>Your client exports Apple Health data from iPhone. HealthEye supports Apple Health export files, including zip exports with <code>export.xml</code>.</p>
+                </div>
+              </div>
+              <div class="timeline__step">
+                <div class="timeline__step-index">2</div>
+                <div>
+                  <h3>Import into HealthEye on Mac</h3>
+                  <p>Import the file, review metric completeness, and see what data is available before relying on a score.</p>
+                </div>
+              </div>
+              <div class="timeline__step">
+                <div class="timeline__step-index">3</div>
+                <div>
+                  <h3>Review changes and generate a report</h3>
+                  <p>Prioritize clients, inspect score drivers, and export a weekly report with a suggested coach message.</p>
+                </div>
+              </div>
+            </div>
+            <div class="btn-row" style="margin-top:1rem;">
+              <a class="btn btn--ghost" href="/guides/apple-health-export-to-csv/">How Apple Health Export Works</a>
+              <a class="btn btn--primary" href="/sample-report/">See a Sample Weekly Report</a>
+            </div>
+          </div>
+          <div class="proof-panel reveal delay-1">
+            <div class="kicker">Demo Placeholder</div>
+            <h3 style="font-size:1.3rem;">90-second product walkthrough</h3>
+            <p>This block is ready for the product demo video. Until the demo is recorded, keep the screenshot-based workflow explanation and sample report CTA visible above the fold and in this section.</p>
+            <div class="card" style="background:linear-gradient(135deg, rgba(33,78,136,.08), rgba(14,138,119,.08));margin-top:.8rem;">
+              <div style="aspect-ratio:16/9;border-radius:12px;border:1px dashed rgba(31,27,22,.18);display:grid;place-items:center;background:rgba(255,255,255,.6);">
+                <div style="text-align:center;max-width:28ch;">
+                  <div style="font-weight:800;font-size:1.05rem;margin-bottom:.25rem;">Demo slot</div>
+                  <div class="small-note">Replace with embedded video and <code>VideoObject</code> metadata when ready.</div>
+                </div>
+              </div>
+            </div>
+            <div class="badge-row" style="margin-top:.8rem;">
+              <span class="pill">Guide users to import</span>
+              <span class="pill">Show score breakdown</span>
+              <span class="pill">Show report export</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="features">
+        <div class="container">
+          <div class="section__head reveal">
+            <div class="kicker">Core Features</div>
+            <h2>Everything needed for a coach-first Apple Health workflow</h2>
+            <p>HealthEye is designed around the actual weekly loop: import, validate, triage, explain, report, and communicate.</p>
+          </div>
+          <div class="grid-features">
+            <article class="card reveal">
+              <h3>Client Triage Dashboard</h3>
+              <p>A ranked client list for Monday check-ins, with attention score, top alert, last import date, and report status in one view.</p>
+            </article>
+            <article class="card reveal delay-1">
+              <h3>Explainable Scoring</h3>
+              <p>Scores are not black-box. See metric-level drivers, recent vs baseline deltas, and rule explanations before acting.</p>
+            </article>
+            <article class="card reveal delay-2">
+              <h3>Data Completeness Checks</h3>
+              <p>Know what is missing before you interpret trends. HealthEye shows metric completeness so you can trust what is on screen.</p>
+            </article>
+            <article class="card reveal">
+              <h3>Weekly Change Narrative</h3>
+              <p>A concise “what changed this week” summary reduces analysis time and supports consistent check-ins.</p>
+            </article>
+            <article class="card reveal delay-1">
+              <h3>One-Click Weekly Reports</h3>
+              <p>Export a client-ready PDF report with trend summaries, alerts, and a coach message draft.</p>
+            </article>
+            <article class="card reveal delay-2">
+              <h3>Data Ownership Controls</h3>
+              <p>Export machine-readable data, archive clients, and delete records when needed. No lock-in workflow.</p>
+            </article>
+          </div>
+          <div class="btn-row" style="margin-top:1rem;">
+            <a class="btn btn--primary" href="/download/">Download for Mac</a>
+            <a class="btn btn--ghost" href="/features/">Compare Features</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="trust">
+        <div class="container split">
+          <div class="proof-panel reveal">
+            <div class="kicker">Trust and Explainability</div>
+            <h2>Why coaches can trust the output</h2>
+            <p>Health data is messy. Missing metrics, incomplete exports, and unstable scores create bad coaching decisions. HealthEye is built to make data quality visible before it becomes a problem.</p>
+            <ul class="list-check">
+              <li>Metric completeness is shown per client and per week</li>
+              <li>Missing data is labeled, not silently treated as zero</li>
+              <li>Score breakdown shows what moved the result</li>
+              <li>Score changes are traceable to new data or scoring-rule version updates</li>
+            </ul>
+            <p class="small-note">You should never have to guess whether a client is flagged because of a real change or a messy import.</p>
+          </div>
+          <div class="proof-panel reveal delay-1">
+            <div class="kicker">Founder Transparency</div>
+            <h3 style="font-size:1.35rem;">No testimonials yet. Real workflow proof instead.</h3>
+            <p>HealthEye is new and currently founder-used. Instead of padded testimonials, this site shows the actual workflow: import guidance, completeness checks, explainable scoring, and a sample report you can evaluate before downloading.</p>
+            <ul class="list-check">
+              <li>Sample report preview (real output format)</li>
+              <li>Feature-level explanations with score drivers</li>
+              <li>Privacy and data ownership controls documented</li>
+              <li>Guides for Apple Health export and Mac analysis workflows</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="sample-report">
+        <div class="container split">
+          <div class="proof-panel reveal">
+            <div class="kicker">Sample Report</div>
+            <h2>See the weekly report coaches send to clients</h2>
+            <p>Open a sample report to review layout, trend summaries, alert explanations, and coach-ready messaging. This is the fastest way to evaluate whether the workflow fits your business.</p>
+            <div class="btn-row" style="margin-top:.8rem;">
+              <a class="btn btn--accent" href="/sample-report/" data-track="sample_report_click">View Sample Report</a>
+              <a class="btn btn--ghost" href="/download/">Download for Mac</a>
+            </div>
+          </div>
+          <div class="report-mock reveal delay-1" aria-label="Sample weekly report preview">
+            <div class="report-mock__header">
+              <div>
+                <strong style="font-size:1.05rem;">Weekly Recovery & Adherence Summary</strong>
+                <div class="small-note">Client: Alex M. • Week of Feb 10–16</div>
+              </div>
+              <div class="small-note">Generated by HealthEye • v0.1</div>
+            </div>
+            <div class="report-grid">
+              <div class="report-stat"><strong>Sleep</strong><br><span class="small-note">Recent vs baseline</span><br><span class="stat__delta stat__delta--down">-12%</span></div>
+              <div class="report-stat"><strong>HRV</strong><br><span class="small-note">Recent vs baseline</span><br><span class="stat__delta stat__delta--down">-15%</span></div>
+              <div class="report-stat"><strong>Resting HR</strong><br><span class="small-note">Recent vs baseline</span><br><span class="stat__delta stat__delta--warn">+9%</span></div>
+              <div class="report-stat"><strong>Steps</strong><br><span class="small-note">Recent vs baseline</span><br><span class="stat__delta stat__delta--down">-18%</span></div>
+            </div>
+            <div class="report-alert">
+              <strong>Alert summary:</strong> Recovery risk pattern triggered (HRV down, resting HR up, sleep down). Review training load and recovery behavior this week.
+            </div>
+            <div class="card" style="background:#fcfbf8;">
+              <strong>Suggested coach message</strong>
+              <p style="margin:.35rem 0 0;">“I’m seeing a recovery dip this week compared with your baseline (sleep and HRV are down while resting HR is up). Let’s adjust workload and focus on sleep consistency for the next few days, then review again.”</p>
+            </div>
+            <div class="small-note">Includes date range, trend deltas, alert summary, and a suggested next-step message.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="roi">
+        <div class="container split">
+          <div class="proof-panel reveal">
+            <div class="kicker">Coach Workflow ROI</div>
+            <h2>Designed to reduce weekly admin time</h2>
+            <p>If you are manually exporting data, cleaning XML or CSV files, rebuilding charts, and writing updates from scratch, your reporting workflow is doing the wrong work. HealthEye focuses on triage, explanation, and repeatable reporting so your coaching time goes into decisions and communication.</p>
+            <ul class="list-check">
+              <li>Prioritize high-attention clients first</li>
+              <li>Reduce spreadsheet cleanup and repetitive chart building</li>
+              <li>Standardize report quality across clients</li>
+              <li>Improve consistency of weekly coach communication</li>
+            </ul>
+            <div class="btn-row" style="margin-top:.8rem;">
+              <a class="btn btn--primary" href="/for-coaches/">See the Coach Workflow</a>
+              <a class="btn btn--ghost" href="/pricing/">View Pricing</a>
+            </div>
+          </div>
+          <div class="proof-panel reveal delay-1">
+            <div class="kicker">Guides for Search Visitors</div>
+            <h3 style="font-size:1.35rem;">New to Apple Health exports? Start with the guides.</h3>
+            <p>These pages capture common search intent (“CSV”, “Excel”, and “analyze on Mac”) and route visitors into the download funnel with practical guidance and real workflow examples.</p>
+            <ul class="list-check">
+              <li><a href="/guides/apple-health-export-to-csv/">Apple Health Export to CSV guide</a></li>
+              <li><a href="/guides/apple-health-export-to-excel/">Apple Health Export to Excel guide</a></li>
+              <li><a href="/guides/analyze-apple-watch-health-data-on-mac/">Analyze Apple Watch Data on Mac guide</a></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="faq">
+        <div class="container">
+          <div class="section__head reveal">
+            <h2>Frequently asked questions</h2>
+            <p>Questions coaches and advanced users ask before switching from spreadsheets and ad hoc exports.</p>
+          </div>
+          <div class="faq">
+            <details class="faq__item reveal">
+              <summary class="faq__question"><span>Does this work with Apple Health exports from iPhone?</span><span data-faq-sign>+</span></summary>
+              <div class="faq__answer">Yes. HealthEye is built for Apple Health export files from iPhone, including zip exports that contain <code>export.xml</code>. The app guides the import process on Mac.</div>
+            </details>
+            <details class="faq__item reveal delay-1">
+              <summary class="faq__question"><span>Do I need to be technical to use it?</span><span data-faq-sign>+</span></summary>
+              <div class="faq__answer">No. The workflow is designed for coaches, not developers. HealthEye guides import, shows data completeness, and explains score changes in plain language.</div>
+            </details>
+            <details class="faq__item reveal delay-2">
+              <summary class="faq__question"><span>Is this a medical app?</span><span data-faq-sign>+</span></summary>
+              <div class="faq__answer">No. HealthEye provides wellness and coaching insights only. It is not a medical device and does not provide diagnosis or medical treatment advice.</div>
+            </details>
+            <details class="faq__item reveal">
+              <summary class="faq__question"><span>Can I export or delete client data?</span><span data-faq-sign>+</span></summary>
+              <div class="faq__answer">Yes. Data ownership controls are included so you can export machine-readable data and remove client records when needed.</div>
+            </details>
+            <details class="faq__item reveal delay-1">
+              <summary class="faq__question"><span>Does it require an internet connection?</span><span data-faq-sign>+</span></summary>
+              <div class="faq__answer">Core workflows are designed to work locally on Mac, including import, analysis, and report generation.</div>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="cta-block reveal">
+            <div class="split" style="grid-template-columns: 1.2fr .8fr; align-items:center;">
+              <div>
+                <div class="kicker">Start With One Client</div>
+                <h2>Test the workflow in minutes with your real process</h2>
+                <p>Download HealthEye for Mac, import an Apple Health export, and evaluate the weekly triage and report workflow with your own client data.</p>
+                <p class="small-note">Privacy-first. Local analysis. Explainable output.</p>
+              </div>
+              <div>
+                <div class="btn-row" style="justify-content:flex-start;">
+                  <a class="btn btn--primary" href="/download/" data-track="final_download_click">Download for Mac</a>
+                  <a class="btn btn--ghost" href="/sample-report/">View Sample Report</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div data-site-footer></div>
+    <div data-sticky-cta-slot></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en" data-site-root="/">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to Export Apple Health Data to CSV (Apple Watch Included) | Mac Guide</title>
+  <meta name="description" content="Learn how to export Apple Health data and turn Apple Watch health metrics into CSV for analysis. Includes Apple Health export steps, XML-to-CSV options, and a faster Mac workflow.">
+  <link rel="canonical" href="https://healtheye.app/guides/apple-health-export-to-csv/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="How to Export Apple Health Data to CSV (Including Apple Watch Data)">
+  <meta property="og:description" content="Apple Health exports are XML-based. This guide covers the export process, CSV options, and a better Mac workflow for repeated analysis.">
+  <meta property="og:url" content="https://healtheye.app/guides/apple-health-export-to-csv/">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        "headline": "How to Export Apple Health Data to CSV (Including Apple Watch Data)",
+        "description": "Guide to exporting Apple Health data from iPhone and turning XML-based exports into CSV-friendly workflows.",
+        "author": { "@type": "Organization", "name": "HealthEye" },
+        "publisher": { "@type": "Organization", "name": "HealthEye" },
+        "datePublished": "2026-02-22",
+        "dateModified": "2026-02-22",
+        "mainEntityOfPage": "https://healtheye.app/guides/apple-health-export-to-csv/"
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://healtheye.app/" },
+          { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://healtheye.app/guides/apple-health-export-to-csv/" },
+          { "@type": "ListItem", "position": 3, "name": "Apple Health Export to CSV", "item": "https://healtheye.app/guides/apple-health-export-to-csv/" }
+        ]
+      }
+    ]
+  }
+  </script>
+  <script src="/assets/site.js" defer></script>
+</head>
+<body data-page="guides-csv" data-page-title="Apple Health Export to CSV Guide" data-sticky-cta-label="Download for Mac" data-sticky-cta-href="/download/">
+  <div class="page-shell">
+    <div data-site-header></div>
+
+    <main class="page-main">
+      <section class="guide-hero">
+        <div class="container">
+          <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <a href="/">Home</a> <span>/</span>
+            <a href="/guides/apple-health-export-to-csv/">Guides</a> <span>/</span>
+            <span>Apple Health Export to CSV</span>
+          </nav>
+          <div class="card reveal">
+            <div class="eyebrow">Guide</div>
+            <h1>How to Export Apple Health Data to CSV (Including Apple Watch Data)</h1>
+            <p class="lead">Apple Health export usually gives you a large XML file, not a clean spreadsheet. This guide explains the Apple Health export process, what the XML contains, and how to get to a CSV-friendly workflow without wasting hours on cleanup.</p>
+            <p class="small-note">Published Feb 22, 2026 • Coach-friendly workflow guide</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" style="padding-top:.8rem;">
+        <div class="container guide-layout">
+          <article class="guide-content reveal">
+            <p><strong>If you found this page because Apple Health export gave you a large XML file, you are not alone.</strong></p>
+
+            <div class="quick-answer" id="quick-answer">
+              <h2 style="margin-top:0;">Quick answer</h2>
+              <p>Apple Health exports data as an XML file (often inside a zip). To get CSV, you usually need a converter or a Mac analysis tool that can import the Apple Health export and export or visualize the metrics you actually need. If you are a coach, the fastest path is often to import the export on Mac and generate a report directly instead of rebuilding everything in spreadsheets.</p>
+            </div>
+
+            <h2 id="included">What is included in an Apple Health export?</h2>
+            <p>An Apple Health export can include records, workouts, and other entries collected by iPhone, Apple Watch, and apps that write to Apple Health. The exact fields vary by device, permissions, and what a client has enabled.</p>
+            <ul>
+              <li>Records for metrics such as steps and heart-rate-related measurements</li>
+              <li>Workout data and timestamps</li>
+              <li>Metadata and source information</li>
+              <li><code>export.xml</code> inside a compressed archive in many cases</li>
+            </ul>
+
+            <h2 id="iphone-export">How to export Apple Health data from iPhone</h2>
+            <ol>
+              <li>Open the Health app on iPhone.</li>
+              <li>Tap your profile picture in the top-right corner.</li>
+              <li>Scroll down and choose <strong>Export All Health Data</strong>.</li>
+              <li>Confirm export and save or share the file.</li>
+              <li>Transfer the exported file to your Mac for analysis.</li>
+            </ol>
+            <div class="callout">Tip: Keep a naming pattern like <code>client-name_YYYY-MM-DD_health-export.zip</code>. It makes recurring weekly imports much easier.</div>
+
+            <h2 id="why-hard">Why Apple Health export to CSV is harder than people expect</h2>
+            <p>The main issue is not data access. It is format and scale. XML is portable, but most people searching for “Apple Health CSV” actually want one of these outcomes: a clean table for a few metrics, a weekly trend summary, or a report they can send to someone else.</p>
+            <ul>
+              <li>XML is not convenient to inspect manually</li>
+              <li>Different metrics matter for different goals</li>
+              <li>Missing or incomplete fields can produce confusing tables</li>
+              <li>Spreadsheets become expensive in time when repeated every week</li>
+            </ul>
+
+            <h2 id="options">3 ways to work with Apple Health data in CSV-friendly form</h2>
+            <h3>Option 1: Manual XML conversion to CSV</h3>
+            <p>You can parse <code>export.xml</code> and convert it into CSV tables. This gives maximum control but is usually the slowest option if your real goal is recurring coaching reports.</p>
+
+            <h3>Option 2: Export utility apps</h3>
+            <p>Some tools focus on converting Apple Health exports into CSV or JSON. These reduce technical effort, but you may still end up doing analysis and report formatting manually in Excel.</p>
+
+            <h3>Option 3: Mac analysis workflow (recommended for coaches)</h3>
+            <p>If the real goal is weekly coaching decisions, use a Mac workflow that imports Apple Health exports, shows metric completeness, explains trend changes, and generates reports directly. This removes most spreadsheet cleanup while preserving portability controls.</p>
+
+            <div class="cta-block" style="margin:1rem 0;">
+              <div class="kicker">Skip Spreadsheet Cleanup</div>
+              <h3 style="font-size:1.35rem;">Go straight from Apple Health export to weekly coaching report</h3>
+              <p>HealthEye imports Apple Health exports on Mac, shows what data is available, and helps you generate explainable weekly reports with coach-ready messaging.</p>
+              <div class="btn-row">
+                <a class="btn btn--primary" href="/download/" data-track="guide_cta_download_click">Download for Mac</a>
+                <a class="btn btn--ghost" href="/sample-report/" data-track="guide_cta_sample_report_click">View Sample Report</a>
+              </div>
+            </div>
+
+            <h2 id="trust-checks">What to check before you trust a CSV or report</h2>
+            <p>No matter which workflow you use, check completeness before interpreting trends. Missing sleep or HRV data can make a score or chart look more dramatic than it really is.</p>
+            <ul>
+              <li>Export date and covered range</li>
+              <li>Which metrics are actually present</li>
+              <li>Missing-data handling (labeled vs silently zeroed)</li>
+              <li>Units and consistency</li>
+              <li>Whether trend baselines are explained</li>
+            </ul>
+
+            <h2 id="better-question">If you are a coach, the better question is usually not “How do I get CSV?”</h2>
+            <p>The better question is: how do I turn Apple Health exports into a repeatable weekly client workflow? CSV is useful for portability, but weekly coaching usually needs triage, explanation, and communication more than raw tables.</p>
+            <p>That is the gap HealthEye is built for: Apple Health export on iPhone, analysis on Mac, and a weekly report you can actually send.</p>
+
+            <h2 id="faq">FAQ: Apple Health export to CSV</h2>
+            <div class="faq">
+              <details class="faq__item"><summary class="faq__question"><span>Does Apple Health export directly to CSV?</span><span data-faq-sign>+</span></summary><div class="faq__answer">Apple Health exports are commonly delivered as an XML-based export (often in a zip archive). Many users use a converter or analysis app to create CSV-friendly outputs.</div></details>
+              <details class="faq__item"><summary class="faq__question"><span>Does this include Apple Watch data?</span><span data-faq-sign>+</span></summary><div class="faq__answer">Apple Watch data written into Apple Health and included in the export can be part of the workflow. Exact fields vary by permissions and what was tracked.</div></details>
+              <details class="faq__item"><summary class="faq__question"><span>Can I use Excel after exporting?</span><span data-faq-sign>+</span></summary><div class="faq__answer">Yes. CSV is commonly used for Excel. If your goal is recurring review or client reporting, a Mac analysis workflow may save substantial time.</div></details>
+            </div>
+
+            <div class="cta-block" style="margin-top:1rem;">
+              <h3 style="font-size:1.3rem;">Need more than a CSV file?</h3>
+              <p>Analyze Apple Health exports on Mac and generate weekly client reports with HealthEye.</p>
+              <div class="btn-row">
+                <a class="btn btn--primary" href="/download/">Download for Mac</a>
+                <a class="btn btn--ghost" href="/guides/analyze-apple-watch-health-data-on-mac/">Analyze Apple Watch Data on Mac</a>
+              </div>
+            </div>
+          </article>
+
+          <aside class="guide-aside reveal delay-1">
+            <div class="aside-box">
+              <div class="kicker">On This Page</div>
+              <nav class="toc" aria-label="Table of contents">
+                <a href="#quick-answer">Quick answer</a>
+                <a href="#included">What’s in the export</a>
+                <a href="#iphone-export">Export from iPhone</a>
+                <a href="#why-hard">Why CSV is harder than expected</a>
+                <a href="#options">Workflow options</a>
+                <a href="#trust-checks">Trust checks</a>
+                <a href="#better-question">Coach workflow framing</a>
+                <a href="#faq">FAQ</a>
+              </nav>
+            </div>
+            <div class="aside-box">
+              <div class="kicker">HealthEye</div>
+              <h3 style="font-size:1.15rem;">Turn exports into weekly coach reports</h3>
+              <p>Import Apple Health exports on Mac, review completeness and score drivers, and generate a weekly report without spreadsheet-heavy cleanup.</p>
+              <div class="btn-row">
+                <a class="btn btn--primary" href="/download/">Download for Mac</a>
+                <a class="btn btn--ghost" href="/sample-report/">Sample Report</a>
+              </div>
+            </div>
+            <div class="aside-box">
+              <div class="kicker">Related Guides</div>
+              <ul class="list-check">
+                <li><a href="/guides/apple-health-export-to-excel/" data-track="guide_internal_link_click">Export Apple Health to Excel</a></li>
+                <li><a href="/guides/analyze-apple-watch-health-data-on-mac/" data-track="guide_internal_link_click">Analyze Apple Watch Data on Mac</a></li>
+                <li><a href="/features/" data-track="guide_internal_link_click">HealthEye features</a></li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <div data-site-footer></div>
+    <div data-sticky-cta-slot></div>
+  </div>
+</body>
+</html>

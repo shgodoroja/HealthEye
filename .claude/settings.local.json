@@ -5,7 +5,11 @@
       "Bash(git rm:*)",
       "Bash(git commit:*)",
       "Bash(git status:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(ruby --version:*)",
+      "Bash(gem list:*)",
+      "Bash(ruby:*)",
+      "Bash(be preserved\"\\):*)"
     ]
   }
 }
