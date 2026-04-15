@@ -96,6 +96,7 @@ struct ReportPreviewView: View {
         HStack {
             Text("Weekly Report")
                 .font(.headline)
+                .accessibilityIdentifier("report-title")
 
             Spacer()
 
@@ -121,10 +122,12 @@ struct ReportPreviewView: View {
             }
             .buttonStyle(.borderedProminent)
             .disabled(pdfData == nil)
+            .accessibilityIdentifier("report-export-button")
 
             Button("Close") {
                 dismiss()
             }
+            .accessibilityIdentifier("report-close-button")
         }
     }
 

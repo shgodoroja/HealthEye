@@ -3,6 +3,7 @@ import SwiftData
 
 enum UITestScenario: String {
     case empty
+    case activeTrialWithClient = "active_trial_with_client"
     case expiredTrialWithClient = "expired_trial_with_client"
 }
 
@@ -26,8 +27,10 @@ struct UITestBootstrapper {
         switch scenario {
         case .empty:
             _ = TrialManager.ensureAccount(context: context)
+        case .activeTrialWithClient:
+            seedTrialClient(context: context, expired: false)
         case .expiredTrialWithClient:
-            seedExpiredTrialWithClient(context: context)
+            seedTrialClient(context: context, expired: true)
         }
 
         try? context.save()
@@ -60,14 +63,14 @@ struct UITestBootstrapper {
     }
 
     @MainActor
-    private static func seedExpiredTrialWithClient(context: ModelContext) {
+    private static func seedTrialClient(context: ModelContext, expired: Bool) {
         let now = Date()
         let account = CoachAccount(
             email: "coach@example.com",
             planType: .trial,
-            trialStartAt: Calendar.utc.date(byAdding: .day, value: -21, to: now),
-            trialEndAt: Calendar.utc.date(byAdding: .day, value: -7, to: now),
-            status: .expired
+            trialStartAt: Calendar.utc.date(byAdding: .day, value: expired ? -21 : -3, to: now),
+            trialEndAt: Calendar.utc.date(byAdding: .day, value: expired ? -7 : 11, to: now),
+            status: expired ? .expired : .active
         )
         context.insert(account)
 

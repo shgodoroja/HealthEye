@@ -86,6 +86,28 @@ final class HealthEyeUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["paywall-expired-banner"].waitForExistence(timeout: 5))
     }
 
+    @MainActor
+    func testActiveTrialCanOpenReportPreview() throws {
+        let app = launchApp(environment: [
+            "UITEST_SCENARIO": "active_trial_with_client",
+        ])
+
+        let clientLabel = app.staticTexts["Taylor Client"]
+        XCTAssertTrue(clientLabel.waitForExistence(timeout: 5))
+        clientLabel.tap()
+
+        let generateButton = app.buttons["generate-report-button"]
+        XCTAssertTrue(generateButton.waitForExistence(timeout: 5))
+        generateButton.tap()
+
+        let reportTitle = app.staticTexts["report-title"]
+        XCTAssertTrue(reportTitle.waitForExistence(timeout: 5))
+
+        let exportButton = app.buttons["report-export-button"]
+        XCTAssertTrue(exportButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(exportButton.isEnabled)
+    }
+
     private func launchApp(environment: [String: String] = [:]) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing"]
