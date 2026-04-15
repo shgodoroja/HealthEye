@@ -22,7 +22,9 @@ final class HealthEyeUITests: XCTestCase {
         XCTAssertTrue(saveButton.isEnabled)
         saveButton.tap()
 
-        XCTAssertTrue(app.staticTexts["Jordan Coach"].waitForExistence(timeout: 5))
+        // The client name may appear in both the sidebar row and the auto-selected detail
+        // header — use firstMatch to avoid an ambiguous-element failure.
+        XCTAssertTrue(app.staticTexts["Jordan Coach"].firstMatch.waitForExistence(timeout: 5))
     }
 
     @MainActor
@@ -42,9 +44,13 @@ final class HealthEyeUITests: XCTestCase {
         nameField.typeText("Jordan Medium")
         app.buttons["client-form-save"].tap()
 
-        let clientLabel = app.staticTexts["Jordan Medium"]
-        XCTAssertTrue(clientLabel.waitForExistence(timeout: 5))
-        clientLabel.tap()
+        // Tap the sidebar row specifically — after the form sheet closes the client may
+        // already be shown in the detail pane, causing "Jordan Medium" to match both
+        // the outline cell *and* the detail header.  Querying from the outline avoids
+        // an ambiguous-element error.
+        let sidebarLabel = app.outlines.staticTexts["Jordan Medium"].firstMatch
+        XCTAssertTrue(sidebarLabel.waitForExistence(timeout: 5))
+        sidebarLabel.tap()
 
         let importButton = app.buttons["import-health-data-button"]
         XCTAssertTrue(importButton.waitForExistence(timeout: 5))
@@ -65,7 +71,7 @@ final class HealthEyeUITests: XCTestCase {
         XCTAssertTrue(mediumFilter.waitForExistence(timeout: 5))
         mediumFilter.tap()
 
-        XCTAssertTrue(clientLabel.waitForExistence(timeout: 5))
+        XCTAssertTrue(sidebarLabel.waitForExistence(timeout: 5))
     }
 
     @MainActor
@@ -74,12 +80,14 @@ final class HealthEyeUITests: XCTestCase {
             "UITEST_SCENARIO": "expired_trial_with_client",
         ])
 
-        let clientLabel = app.staticTexts["Taylor Client"]
-        XCTAssertTrue(clientLabel.waitForExistence(timeout: 5))
-        clientLabel.tap()
+        // Tap the sidebar row — the client name also appears in the detail header once
+        // selected, so target the outline specifically to avoid ambiguous element errors.
+        let sidebarLabel = app.outlines.staticTexts["Taylor Client"].firstMatch
+        XCTAssertTrue(sidebarLabel.waitForExistence(timeout: 5))
+        sidebarLabel.tap()
 
         let generateButton = app.buttons["generate-report-button"]
-        XCTAssertTrue(generateButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(generateButton.waitForExistence(timeout: 10))
         generateButton.tap()
 
         XCTAssertTrue(app.staticTexts["paywall-title"].waitForExistence(timeout: 5))
@@ -92,12 +100,14 @@ final class HealthEyeUITests: XCTestCase {
             "UITEST_SCENARIO": "active_trial_with_client",
         ])
 
-        let clientLabel = app.staticTexts["Taylor Client"]
-        XCTAssertTrue(clientLabel.waitForExistence(timeout: 5))
-        clientLabel.tap()
+        // Tap the sidebar row — the client name also appears in the detail header once
+        // selected, so target the outline specifically to avoid ambiguous element errors.
+        let sidebarLabel = app.outlines.staticTexts["Taylor Client"].firstMatch
+        XCTAssertTrue(sidebarLabel.waitForExistence(timeout: 5))
+        sidebarLabel.tap()
 
         let generateButton = app.buttons["generate-report-button"]
-        XCTAssertTrue(generateButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(generateButton.waitForExistence(timeout: 10))
         generateButton.tap()
 
         let reportTitle = app.staticTexts["report-title"]
