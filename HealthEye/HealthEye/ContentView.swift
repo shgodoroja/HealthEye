@@ -157,6 +157,10 @@ struct ContentView: View {
         }
         .onAppear {
             refreshScores()
+            // Never show onboarding during any kind of test run — the
+            // bootstrapper seeds accounts with onboardingCompleted=true.
+            guard !UITestBootstrapper.isEnabled,
+                  NSClassFromString("XCTestCase") == nil else { return }
             if let account, !account.onboardingCompleted {
                 showingOnboarding = true
             }

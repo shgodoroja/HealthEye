@@ -26,7 +26,7 @@ struct UITestBootstrapper {
 
         switch scenario {
         case .empty:
-            _ = TrialManager.ensureAccount(context: context)
+            seedEmptyWorkspace(context: context)
         case .activeTrialWithClient:
             seedTrialClient(context: context, expired: false)
         case .expiredTrialWithClient:
@@ -62,6 +62,23 @@ struct UITestBootstrapper {
         try? context.save()
     }
 
+    /// Seeds a minimal account with onboarding already completed so that
+    /// UI tests that start from an empty workspace never hit the onboarding
+    /// sheet.
+    @MainActor
+    private static func seedEmptyWorkspace(context: ModelContext) {
+        let now = Date()
+        let account = CoachAccount(
+            email: "coach@example.com",
+            planType: .trial,
+            trialStartAt: Calendar.utc.date(byAdding: .day, value: -1, to: now),
+            trialEndAt: Calendar.utc.date(byAdding: .day, value: 13, to: now),
+            status: .active,
+            onboardingCompleted: true
+        )
+        context.insert(account)
+    }
+
     @MainActor
     private static func seedTrialClient(context: ModelContext, expired: Bool) {
         let now = Date()
@@ -70,7 +87,8 @@ struct UITestBootstrapper {
             planType: .trial,
             trialStartAt: Calendar.utc.date(byAdding: .day, value: expired ? -21 : -3, to: now),
             trialEndAt: Calendar.utc.date(byAdding: .day, value: expired ? -7 : 11, to: now),
-            status: expired ? .expired : .active
+            status: expired ? .expired : .active,
+            onboardingCompleted: true
         )
         context.insert(account)
 
