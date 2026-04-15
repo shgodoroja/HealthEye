@@ -100,6 +100,17 @@ struct AlertRuleEngine {
         context: ModelContext
     ) throws {
         let clientID = client.id
+        let activeCodes = Set(alerts.map(\.ruleCode))
+        let weekDescriptor = FetchDescriptor<AlertEvent>(
+            predicate: #Predicate<AlertEvent> { event in
+                event.client?.id == clientID && event.weekStart == weekStart
+            }
+        )
+        let existingEvents = try context.fetch(weekDescriptor)
+
+        for existing in existingEvents where !activeCodes.contains(existing.ruleCode) {
+            context.delete(existing)
+        }
 
         for alert in alerts {
             let code = alert.ruleCode

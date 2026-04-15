@@ -1,12 +1,118 @@
 # WatchHealthDataReader MVP Quality and Completeness Checklist
 
-Last updated: 2026-02-20
+Last updated: 2026-04-15
 Reference PRD: `/Users/stefangodoroja/Documents/Projects/WatchHealthDataReader/PRD.md`
 
 How to use:
 - Mark each item `[x]` only when all acceptance criteria pass.
 - Add proof links/notes in the Evidence line.
 - Do not skip blocked items; mark blockers explicitly.
+
+---
+
+## 0) Current Remediation Sequence
+
+Use this section as the ordered execution plan for the current app state review. Do not mark later phases complete while an earlier blocking phase is still open.
+
+### Phase 1: Import -> Derived Data -> Dashboard Coherence (P0)
+
+- [ ] Import completion generates all required derived data
+  - Acceptance criteria:
+    - Successful import persists weekly completeness records for the affected client.
+    - Successful import persists current-week attention score and alert records for the affected client.
+    - Derived records are created without requiring the client detail screen to be opened.
+  - Test coverage:
+    - Unit test covers import -> completeness persistence.
+    - Unit test covers import -> score/alert persistence.
+    - Any uncovered behavior has documented manual validation.
+  - Evidence:
+
+- [ ] Dashboard triage refreshes after imports for existing clients
+  - Acceptance criteria:
+    - Importing new data for an existing client updates sidebar ranking in the same app session.
+    - Attention-bucket filtering reflects the new score without relaunch.
+    - Deleting or archiving a client still clears invalid selection state correctly.
+  - Test coverage:
+    - UI test covers existing-client import -> updated dashboard ordering where feasible.
+    - If UI automation is not feasible yet, manual validation steps and outcomes are recorded.
+  - Evidence:
+
+- [ ] Main coach workflow no longer depends on opening client detail first
+  - Acceptance criteria:
+    - A newly imported client shows usable completeness/priority state directly in dashboard views.
+    - Dashboard and client row badges do not default to misleading zero-completeness state after valid import.
+  - Test coverage:
+    - Unit or integration coverage exists for derived-data availability after import.
+  - Evidence:
+
+### Phase 2: Weekly Correctness and Score Trust (P0)
+
+- [ ] Weekly report uses week-specific completeness
+  - Acceptance criteria:
+    - Report score and completeness are computed from the selected report week only.
+    - Historical reports for different weeks can produce different completeness values when data differs.
+    - Exported PDF and preview show the same week-specific result.
+  - Test coverage:
+    - Unit test covers two weeks with different completeness producing different report outputs.
+  - Evidence:
+
+- [ ] Attention score does not double-penalize missing data
+  - Acceptance criteria:
+    - Missing metric deltas do not independently add full urgency penalty on top of completeness penalty.
+    - Sparse-data clients are not ranked above clearly declining clients solely due to missingness.
+    - Score breakdown still explains incompleteness clearly.
+  - Test coverage:
+    - Unit tests cover sparse-data scenarios and compare them against real-decline scenarios.
+  - Evidence:
+
+- [ ] Weekly vs lifetime completeness semantics are explicit across the app
+  - Acceptance criteria:
+    - Dashboard, report, and client-detail “weekly” messaging uses week-specific completeness.
+    - Any lifetime or historical-average completeness is explicitly labeled as such.
+    - No coach-facing decision view mixes weekly trend with all-time completeness silently.
+  - Test coverage:
+    - Unit tests cover helper methods for week-specific and historical completeness selection.
+    - UI verification exists where feasible for displayed labels/values.
+  - Evidence:
+
+### Phase 3: Build Safety and Automation (P1)
+
+- [ ] Swift concurrency warnings in import/parser path are resolved
+  - Acceptance criteria:
+    - App-owned warnings tied to parser/import actor isolation are removed from build output.
+    - Parser state mutation is isolation-safe and deterministic.
+    - Import progress updates no longer rely on unsafe captured-main-actor patterns.
+  - Test coverage:
+    - Existing parser/import tests pass after refactor.
+    - Any new concurrency-sensitive code paths have unit coverage where possible.
+  - Evidence:
+
+- [ ] UI test suite covers critical coach workflows
+  - Acceptance criteria:
+    - Automated UI tests cover import flow, dashboard triage update, report preview/export, and paywall gating where feasible.
+    - UI test runner starts unattended without local-authentication interruption.
+    - Release candidate runs record UI test results.
+  - Test coverage:
+    - This item is complete only when the UI test implementation itself exists and runs.
+  - Evidence:
+
+### Phase 4: Platform and Release Hardening (P2)
+
+- [ ] Deployment target matches launch strategy
+  - Acceptance criteria:
+    - `MACOSX_DEPLOYMENT_TARGET` is intentionally chosen and documented.
+    - Target version is not higher than necessary for the MVP feature set unless explicitly justified.
+  - Test coverage:
+    - Build/run validation is recorded for the chosen minimum supported macOS version where feasible.
+  - Evidence:
+
+- [ ] Review findings are reflected in release sign-off
+  - Acceptance criteria:
+    - No open P0 issue remains in phases 1-2 at go/no-go time.
+    - Any waived P1/P2 issue includes owner, rationale, and mitigation.
+  - Test coverage:
+    - Final release candidate test results are linked in evidence.
+  - Evidence:
 
 ---
 

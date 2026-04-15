@@ -6,6 +6,7 @@ struct ContentView: View {
     @Query(sort: \Client.displayName)
     private var allClients: [Client]
     @Query private var accounts: [CoachAccount]
+    @Query private var imports: [ClientImport]
 
     private var account: CoachAccount? {
         accounts.first
@@ -126,6 +127,9 @@ struct ContentView: View {
             if let selected = selectedClient, !allClients.contains(where: { $0.id == selected.id }) {
                 selectedClient = nil
             }
+            refreshScores()
+        }
+        .onChange(of: imports.count) {
             refreshScores()
         }
     }

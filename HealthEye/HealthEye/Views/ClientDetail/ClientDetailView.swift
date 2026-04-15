@@ -263,8 +263,20 @@ struct ClientDetailView: View {
     }
 
     private func refreshAll() {
-        refreshCompleteness()
-        refreshScoring()
+        do {
+            let snapshot = try ClientInsightsRefreshService.refresh(
+                client: client,
+                context: modelContext
+            )
+            weeklyCompleteness = snapshot.weeklyCompleteness
+            metricTrend = snapshot.trend
+            attentionResult = snapshot.attentionResult
+            activeAlerts = snapshot.alerts
+            narrative = snapshot.narrative
+        } catch {
+            refreshCompleteness()
+            refreshScoring()
+        }
     }
 
     private func refreshCompleteness() {

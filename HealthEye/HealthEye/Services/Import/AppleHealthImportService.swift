@@ -86,7 +86,7 @@ final class AppleHealthImportService {
 
             // Step 5: Save
             state = .saving
-            let summary = try await saveMetrics(
+            let summary = try saveMetrics(
                 parsedData: parsedData,
                 fileHash: fileHash,
                 client: client
@@ -109,11 +109,12 @@ final class AppleHealthImportService {
         return existing.contains { $0.client?.id == clientID }
     }
 
+    @MainActor
     private func saveMetrics(
         parsedData: ParsedHealthData,
         fileHash: String,
         client: Client
-    ) async throws -> ImportSummary {
+    ) throws -> ImportSummary {
         let context = ModelContext(modelContainer)
         context.autosaveEnabled = false
 
@@ -184,7 +185,10 @@ final class AppleHealthImportService {
             )
             context.insert(importRecord)
 
-            try context.save()
+            _ = try ClientInsightsRefreshService.refresh(
+                client: localClient,
+                context: context
+            )
 
             let breakdown = MetricsBreakdown(
                 daysWithSleep: daysWithSleep,
