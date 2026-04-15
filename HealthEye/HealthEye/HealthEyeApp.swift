@@ -29,13 +29,12 @@ struct HealthEyeApp: App {
             // Persistent store migration failed (e.g. schema changed during
             // development). Reset the store and try once more rather than
             // crashing.
-            if let storeURL = modelConfiguration.url {
-                try? FileManager.default.removeItem(at: storeURL)
-                try? FileManager.default.removeItem(
-                    at: storeURL.appendingPathExtension("shm"))
-                try? FileManager.default.removeItem(
-                    at: storeURL.appendingPathExtension("wal"))
-            }
+            let storeURL = modelConfiguration.url
+            try? FileManager.default.removeItem(at: storeURL)
+            try? FileManager.default.removeItem(
+                at: storeURL.appendingPathExtension("shm"))
+            try? FileManager.default.removeItem(
+                at: storeURL.appendingPathExtension("wal"))
             do {
                 return try ModelContainer(for: schema, configurations: [modelConfiguration])
             } catch {
