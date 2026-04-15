@@ -17,11 +17,14 @@ struct ContentView: View {
     }
 
     @State private var selectedClient: Client?
+    @State private var showingOnboarding = false
     @State private var showingAddClient = false
     @State private var showingSettings = false
     @State private var showingPaywall = false
     @State private var selectedFilter: AttentionBucket?
     @State private var clientScores: [UUID: Double] = [:]
+    @State private var bulkReportResult: BulkReportResult? = nil
+    @State private var isBulkGenerating = false
 
     private var filteredAndSortedClients: [Client] {
         var result = clients
@@ -89,6 +92,21 @@ struct ContentView: View {
 
             ToolbarItem(placement: .automatic) {
                 Button {
+                    generateAllReports()
+                } label: {
+                    if isBulkGenerating {
+                        ProgressView().controlSize(.small)
+                    } else {
+                        Label("Generate All Reports", systemImage: "doc.badge.arrow.up")
+                    }
+                }
+                .disabled(clients.isEmpty || isBulkGenerating)
+                .help("Generate and export a PDF report for every active client this week")
+                .accessibilityIdentifier("generate-all-reports-button")
+            }
+
+            ToolbarItem(placement: .automatic) {
+                Button {
                     showingPaywall = true
                 } label: {
                     Label("Plans", systemImage: "creditcard")
@@ -103,6 +121,21 @@ struct ContentView: View {
                     Label("Settings", systemImage: "gearshape")
                 }
                 .accessibilityIdentifier("toolbar-settings")
+            }
+        }
+        .alert(bulkResultTitle, isPresented: Binding(
+            get: { bulkReportResult != nil },
+            set: { if !$0 { bulkReportResult = nil } }
+        )) {
+            Button("OK") { bulkReportResult = nil }
+        } message: {
+            Text(bulkResultMessage)
+        }
+        .sheet(isPresented: $showingOnboarding, onDismiss: { refreshScores() }) {
+            if let account {
+                OnboardingContainerView(account: account) {
+                    showingOnboarding = false
+                }
             }
         }
         .sheet(isPresented: $showingAddClient) {
@@ -124,6 +157,9 @@ struct ContentView: View {
         }
         .onAppear {
             refreshScores()
+            if let account, !account.onboardingCompleted {
+                showingOnboarding = true
+            }
         }
         .onChange(of: allClients.count) {
             // Clear selection if the selected client was deleted
@@ -153,6 +189,57 @@ struct ContentView: View {
             scores[client.id] = result.total
         }
         clientScores = scores
+    }
+
+    // MARK: - Bulk report generation
+
+    private func generateAllReports() {
+        guard let account else { return }
+        guard TrialManager.canGenerateReports(account: account) else {
+            showingPaywall = true
+            return
+        }
+        guard !clients.isEmpty else { return }
+
+        isBulkGenerating = true
+        let weekStart = CompletenessCalculator.mondayOfWeek(containing: Date())
+        let context = modelContext
+        let activeClients = clients
+
+        Task.detached(priority: .userInitiated) {
+            let result = BulkReportService.generate(
+                clients: activeClients,
+                weekStart: weekStart,
+                context: context
+            )
+            await MainActor.run {
+                isBulkGenerating = false
+                bulkReportResult = result
+            }
+        }
+    }
+
+    private var bulkResultTitle: String {
+        guard let result = bulkReportResult else { return "" }
+        if result.failed.isEmpty {
+            return "Reports exported"
+        } else if result.succeeded.isEmpty {
+            return "Export failed"
+        } else {
+            return "Export completed with errors"
+        }
+    }
+
+    private var bulkResultMessage: String {
+        guard let result = bulkReportResult else { return "" }
+        var lines: [String] = []
+        if !result.succeeded.isEmpty {
+            lines.append("\(result.succeeded.count) report(s) saved successfully.")
+        }
+        if !result.failed.isEmpty {
+            lines.append("\(result.failed.count) failed: \(result.failed.joined(separator: ", ")).")
+        }
+        return lines.joined(separator: "\n")
     }
 }
 

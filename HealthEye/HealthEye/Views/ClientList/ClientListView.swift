@@ -47,5 +47,10 @@ struct ClientListView: View {
             }
         }
         .navigationTitle("Clients")
+        .onAppear {
+            AnalyticsService.track("dashboard_viewed", properties: [
+                "client_count": String(clients.count),
+            ])
+        }
     }
 }

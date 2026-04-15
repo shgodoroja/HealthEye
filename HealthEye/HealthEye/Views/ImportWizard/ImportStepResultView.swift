@@ -46,6 +46,12 @@ struct ImportStepResultView: View {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 48))
                 .foregroundStyle(.green)
+                .onAppear {
+                    AnalyticsService.track("import_succeeded", properties: [
+                        "days": String(summary.totalDays),
+                        "records": String(summary.totalRecordsParsed),
+                    ])
+                }
 
             Text("Import Successful")
                 .font(.title2)

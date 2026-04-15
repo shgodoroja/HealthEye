@@ -66,14 +66,14 @@ struct TrialManager {
             return existing
         }
 
-        let now = Date()
-        let trialEnd = Calendar.current.date(byAdding: .day, value: trialDurationDays, to: now)!
+        // Trial timestamps are set when the user completes S1 onboarding.
+        // New accounts start with onboardingCompleted = false so the welcome
+        // flow is shown before the main workspace.
         let account = CoachAccount(
             email: "",
             planType: .trial,
-            trialStartAt: now,
-            trialEndAt: trialEnd,
-            status: .active
+            status: .active,
+            onboardingCompleted: false
         )
         context.insert(account)
         return account
