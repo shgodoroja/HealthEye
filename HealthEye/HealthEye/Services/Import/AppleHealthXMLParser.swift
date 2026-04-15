@@ -29,7 +29,7 @@ struct DailyAccumulator: Sendable {
     }
 }
 
-final class AppleHealthXMLParser: NSObject, XMLParserDelegate, @unchecked Sendable {
+final class AppleHealthXMLParser: NSObject, XMLParserDelegate {
     private var parsedData = ParsedHealthData()
     private var recordCount = 0
     private let progressHandler: (@Sendable (Int) -> Void)?
@@ -94,7 +94,7 @@ final class AppleHealthXMLParser: NSObject, XMLParserDelegate, @unchecked Sendab
 
     // MARK: - XMLParserDelegate
 
-    nonisolated func parser(
+    func parser(
         _ parser: XMLParser,
         didStartElement elementName: String,
         namespaceURI: String?,
@@ -114,7 +114,7 @@ final class AppleHealthXMLParser: NSObject, XMLParserDelegate, @unchecked Sendab
         }
     }
 
-    nonisolated func parser(_ parser: XMLParser, parseErrorOccurred parseError: Error) {
+    func parser(_ parser: XMLParser, parseErrorOccurred parseError: Error) {
         // Error handled by parse() return value
     }
 
