@@ -84,6 +84,7 @@ struct ContentView: View {
                 } label: {
                     Label("Add Client", systemImage: "plus")
                 }
+                .accessibilityIdentifier("toolbar-add-client")
             }
 
             ToolbarItem(placement: .automatic) {
@@ -92,6 +93,7 @@ struct ContentView: View {
                 } label: {
                     Label("Plans", systemImage: "creditcard")
                 }
+                .accessibilityIdentifier("toolbar-plans")
             }
 
             ToolbarItem(placement: .automatic) {
@@ -100,6 +102,7 @@ struct ContentView: View {
                 } label: {
                     Label("Settings", systemImage: "gearshape")
                 }
+                .accessibilityIdentifier("toolbar-settings")
             }
         }
         .sheet(isPresented: $showingAddClient) {

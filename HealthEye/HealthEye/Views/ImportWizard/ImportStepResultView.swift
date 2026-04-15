@@ -35,6 +35,7 @@ struct ImportStepResultView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
+                .accessibilityIdentifier("import-done")
             }
         }
         .padding(24)
@@ -49,6 +50,7 @@ struct ImportStepResultView: View {
             Text("Import Successful")
                 .font(.title2)
                 .fontWeight(.semibold)
+                .accessibilityIdentifier("import-success-title")
 
             VStack(alignment: .leading, spacing: 8) {
                 summaryRow("Days of data", value: "\(summary.totalDays)")
@@ -85,6 +87,7 @@ struct ImportStepResultView: View {
             Text("Import Failed")
                 .font(.title2)
                 .fontWeight(.semibold)
+                .accessibilityIdentifier("import-failed-title")
 
             Text(message)
                 .font(.body)

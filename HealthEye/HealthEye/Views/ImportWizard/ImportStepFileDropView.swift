@@ -7,6 +7,14 @@ struct ImportStepFileDropView: View {
 
     @State private var isDragging = false
 
+    private var injectedImportFileURL: URL? {
+        guard let path = ProcessInfo.processInfo.environment["UITEST_IMPORT_FILE_PATH"],
+              !path.isEmpty else {
+            return nil
+        }
+        return URL(fileURLWithPath: path)
+    }
+
     var body: some View {
         VStack(spacing: 20) {
             Text("Select Apple Health Export")
@@ -56,6 +64,7 @@ struct ImportStepFileDropView: View {
                     openFilePanel()
                 }
                 .controlSize(.large)
+                .accessibilityIdentifier("import-browse")
 
                 if selectedFileURL != nil {
                     Button("Start Import") {
@@ -63,12 +72,18 @@ struct ImportStepFileDropView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
+                    .accessibilityIdentifier("import-start")
                 }
             }
 
             Spacer()
         }
         .padding(24)
+        .onAppear {
+            if selectedFileURL == nil, let injectedImportFileURL {
+                selectedFileURL = injectedImportFileURL
+            }
+        }
     }
 
     private func handleDrop(_ providers: [NSItemProvider]) -> Bool {

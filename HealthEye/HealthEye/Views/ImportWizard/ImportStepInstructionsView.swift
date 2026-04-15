@@ -26,6 +26,7 @@ struct ImportStepInstructionsView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
+                .accessibilityIdentifier("import-continue")
             }
         }
         .padding(24)

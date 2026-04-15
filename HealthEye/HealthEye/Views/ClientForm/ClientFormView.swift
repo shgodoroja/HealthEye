@@ -39,6 +39,7 @@ struct ClientFormView: View {
                 Section("Client Information") {
                     TextField("Name", text: $displayName)
                         .textFieldStyle(.roundedBorder)
+                        .accessibilityIdentifier("client-name-field")
 
                     Picker("Timezone", selection: $timezone) {
                         ForEach(TimeZone.knownTimeZoneIdentifiers, id: \.self) { tz in
@@ -71,6 +72,7 @@ struct ClientFormView: View {
                     dismiss()
                 }
                 .keyboardShortcut(.cancelAction)
+                .accessibilityIdentifier("client-form-cancel")
 
                 Spacer()
 
@@ -79,6 +81,7 @@ struct ClientFormView: View {
                 }
                 .keyboardShortcut(.defaultAction)
                 .disabled(!isValid)
+                .accessibilityIdentifier("client-form-save")
             }
             .padding()
         }

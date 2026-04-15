@@ -20,6 +20,7 @@ struct ClientListView: View {
                         onAddClient()
                     }
                     .buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier("empty-add-client")
                 }
             } else {
                 VStack(spacing: 0) {

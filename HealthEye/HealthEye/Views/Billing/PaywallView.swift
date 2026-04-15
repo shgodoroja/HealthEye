@@ -27,8 +27,10 @@ struct PaywallView: View {
             HStack {
                 Text("Plans & Billing")
                     .font(.headline)
+                    .accessibilityIdentifier("paywall-title")
                 Spacer()
                 Button("Close") { dismiss() }
+                    .accessibilityIdentifier("paywall-close")
             }
             .padding()
             .background(Color(nsColor: .windowBackgroundColor))
@@ -91,6 +93,7 @@ struct PaywallView: View {
                 Text("Your trial has expired. Choose a plan to continue.")
                     .font(.callout)
                     .fontWeight(.medium)
+                    .accessibilityIdentifier("paywall-expired-banner")
             }
             .padding()
             .frame(maxWidth: .infinity)
@@ -162,6 +165,7 @@ struct PaywallView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .frame(maxWidth: .infinity)
+                .accessibilityIdentifier("paywall-choose-\(planType.rawValue)")
             }
         }
         .padding()

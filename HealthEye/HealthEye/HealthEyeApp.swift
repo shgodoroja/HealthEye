@@ -14,7 +14,8 @@ struct HealthEyeApp: App {
             GeneratedReport.self,
             MetricCompleteness.self,
         ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let isUITesting = UITestBootstrapper.isEnabled
+        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: isUITesting)
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
@@ -28,7 +29,11 @@ struct HealthEyeApp: App {
             ContentView()
                 .onAppear {
                     let context = sharedModelContainer.mainContext
-                    TrialManager.ensureAccount(context: context)
+                    if UITestBootstrapper.isEnabled {
+                        UITestBootstrapper.bootstrap(context: context)
+                    } else {
+                        TrialManager.ensureAccount(context: context)
+                    }
                 }
         }
         .modelContainer(sharedModelContainer)

@@ -118,15 +118,18 @@ struct ClientDetailView: View {
                     showingPaywall = true
                 }
             }
+            .accessibilityIdentifier("generate-report-button")
 
             Button("Edit") {
                 showingEditForm = true
             }
+            .accessibilityIdentifier("edit-client-button")
 
             Button("Import Health Data") {
                 showingImportWizard = true
             }
             .buttonStyle(.borderedProminent)
+            .accessibilityIdentifier("import-health-data-button")
         }
     }
 

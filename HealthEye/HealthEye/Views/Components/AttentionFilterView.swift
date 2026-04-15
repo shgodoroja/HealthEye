@@ -32,6 +32,7 @@ struct AttentionFilterView: View {
                 .foregroundStyle(isSelected ? chipColor(bucket) : .secondary)
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("filter-\(label.lowercased())")
     }
 
     private func chipColor(_ bucket: AttentionBucket?) -> Color {
