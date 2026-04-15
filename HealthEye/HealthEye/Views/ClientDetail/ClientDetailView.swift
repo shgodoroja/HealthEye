@@ -299,8 +299,11 @@ struct ClientDetailView: View {
         let trend = BaselineEngine.computeTrend(metrics: metrics)
         self.metricTrend = trend
 
-        // Calculate completeness
-        let completeness = averageCompleteness()
+        let currentWeekStart = CompletenessCalculator.mondayOfWeek(containing: Date())
+        let completeness = CompletenessCalculator.score(
+            for: currentWeekStart,
+            metrics: metrics
+        )
 
         // Attention score
         let scoreResult = AttentionScoreCalculator.calculate(
@@ -318,28 +321,21 @@ struct ClientDetailView: View {
         self.narrative = narrativeResult
 
         // Persist
-        let weekStart = CompletenessCalculator.mondayOfWeek(containing: Date())
         do {
             try AttentionScoreCalculator.saveScore(
                 result: scoreResult,
                 client: client,
-                weekStart: weekStart,
+                weekStart: currentWeekStart,
                 context: modelContext
             )
             try AlertRuleEngine.saveAlerts(
                 alerts: alerts,
                 client: client,
-                weekStart: weekStart,
+                weekStart: currentWeekStart,
                 context: modelContext
             )
         } catch {
             // Non-fatal
         }
-    }
-
-    private func averageCompleteness() -> Double {
-        let records = client.completenessRecords
-        guard !records.isEmpty else { return 0 }
-        return records.map(\.completenessScore).reduce(0, +) / Double(records.count)
     }
 }

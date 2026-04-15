@@ -12,10 +12,12 @@ struct ClientRowView: View {
             .max()
     }
 
-    private var overallCompleteness: Double? {
-        let scores = client.completenessRecords.map(\.completenessScore)
-        guard !scores.isEmpty else { return nil }
-        return scores.reduce(0, +) / Double(scores.count)
+    private var currentWeekCompleteness: Double? {
+        let score = CompletenessCalculator.score(
+            for: CompletenessCalculator.mondayOfWeek(containing: Date()),
+            metrics: client.metrics
+        )
+        return client.metrics.isEmpty && score == 0 ? nil : score
     }
 
     private var topAlert: AlertResult? {
@@ -55,7 +57,7 @@ struct ClientRowView: View {
 
             if let score = attentionScore {
                 AttentionScoreBadgeView(score: score)
-            } else if let completeness = overallCompleteness {
+            } else if let completeness = currentWeekCompleteness {
                 CompletenessIndicatorView(score: completeness)
             }
         }

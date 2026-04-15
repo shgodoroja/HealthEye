@@ -136,9 +136,13 @@ struct ContentView: View {
 
     private func refreshScores() {
         var scores: [UUID: Double] = [:]
+        let currentWeekStart = CompletenessCalculator.mondayOfWeek(containing: Date())
         for client in clients {
             let trend = BaselineEngine.computeTrend(metrics: client.metrics)
-            let completeness = averageCompleteness(for: client)
+            let completeness = CompletenessCalculator.score(
+                for: currentWeekStart,
+                metrics: client.metrics
+            )
             let result = AttentionScoreCalculator.calculate(
                 trend: trend,
                 completenessScore: completeness
@@ -146,12 +150,6 @@ struct ContentView: View {
             scores[client.id] = result.total
         }
         clientScores = scores
-    }
-
-    private func averageCompleteness(for client: Client) -> Double {
-        let records = client.completenessRecords
-        guard !records.isEmpty else { return 0 }
-        return records.map(\.completenessScore).reduce(0, +) / Double(records.count)
     }
 }
 

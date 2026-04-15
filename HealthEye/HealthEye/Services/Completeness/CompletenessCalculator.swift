@@ -44,6 +44,16 @@ struct CompletenessCalculator {
         return cal.date(from: components) ?? cal.startOfDay(for: date)
     }
 
+    static func score(
+        for weekStart: Date,
+        metrics: [MetricDaily]
+    ) -> Double {
+        let normalizedWeekStart = mondayOfWeek(containing: weekStart)
+        return calculateWeeklyCompleteness(metrics: metrics)
+            .first(where: { $0.weekStart == normalizedWeekStart })?
+            .score ?? 0
+    }
+
     private static func calculateForWeek(weekStart: Date, days: [MetricDaily]) -> WeeklyCompleteness {
         let totalDays = days.count
         let daysWithSleep = days.filter { $0.sleepMinutes != nil }.count

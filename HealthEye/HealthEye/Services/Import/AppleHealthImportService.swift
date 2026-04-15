@@ -59,7 +59,7 @@ final class AppleHealthImportService {
             // Step 4: Parse
             state = .parsing(progress: 0)
             let parser = AppleHealthXMLParser { [weak self] count in
-                Task { @MainActor in
+                MainActor.assumeIsolated {
                     self?.state = .parsing(progress: count)
                 }
             }

@@ -76,9 +76,9 @@ struct AttentionScoreCalculator {
     /// Maps a percentage delta to a 0-1 deviation score.
     /// - `invert: true` means negative delta = worse (HRV, Sleep, Workout, Steps dropping is bad)
     /// - `invert: false` means positive delta = worse (RHR rising is bad)
-    /// Missing data (nil delta) returns 1.0 (worst case / full penalty).
+    /// Missing data (nil delta) returns 0.0 and is handled by completeness separately.
     private static func deviationScore(delta: Double?, invert: Bool) -> Double {
-        guard let delta = delta else { return 1.0 }
+        guard let delta = delta else { return 0.0 }
 
         let relevantDelta = invert ? -delta : delta
 

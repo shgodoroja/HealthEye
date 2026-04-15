@@ -44,12 +44,17 @@ struct AttentionScoreCalculatorTests {
 
     // MARK: - Missing data penalty
 
-    @Test func missingDataContributesFullPenalty() {
-        // All deltas nil = full penalty per component. completeness = 0
+    @Test func missingDataReliesOnCompletenessPenaltyOnly() {
+        // All deltas nil => no direct metric penalty. completeness = 0 drives the score.
         let trend = makeTrend()
         let result = AttentionScoreCalculator.calculate(trend: trend, completenessScore: 0.0)
-        #expect(result.total == 100) // All components at maximum
+        #expect(result.total == 15.0)
         #expect(result.completenessPenalty == 15.0)
+        #expect(result.recoverySleep == 0.0)
+        #expect(result.recoveryHrv == 0.0)
+        #expect(result.recoveryRestingHr == 0.0)
+        #expect(result.workout == 0.0)
+        #expect(result.steps == 0.0)
     }
 
     // MARK: - Determinism
@@ -92,5 +97,24 @@ struct AttentionScoreCalculatorTests {
         let trend = makeTrend()
         let result = AttentionScoreCalculator.calculate(trend: trend, completenessScore: 0.0)
         #expect(result.total <= 100)
+    }
+
+    @Test func genuineDeclineRanksAboveSparseData() {
+        let sparseDataResult = AttentionScoreCalculator.calculate(
+            trend: makeTrend(),
+            completenessScore: 0.0
+        )
+        let declineResult = AttentionScoreCalculator.calculate(
+            trend: makeTrend(
+                sleepDelta: -20,
+                hrvDelta: -18,
+                rhrDelta: 12,
+                workoutDelta: -25,
+                stepsDelta: -22
+            ),
+            completenessScore: 0.8
+        )
+
+        #expect(declineResult.total > sparseDataResult.total)
     }
 }

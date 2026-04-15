@@ -151,7 +151,10 @@ struct ReportPreviewView: View {
         let metrics = client.metrics
         let trend = BaselineEngine.computeTrend(metrics: metrics, referenceDate: weekEnd.addingTimeInterval(86400))
 
-        let completeness = averageCompleteness()
+        let completeness = CompletenessCalculator.score(
+            for: weekStart,
+            metrics: metrics
+        )
         let scoreResult = AttentionScoreCalculator.calculate(trend: trend, completenessScore: completeness)
         let alerts = AlertRuleEngine.evaluate(trend: trend)
         let narrative = WeeklyNarrativeGenerator.generate(trend: trend, alerts: alerts)
@@ -216,12 +219,6 @@ struct ReportPreviewView: View {
         formatter.dateFormat = "yyyy-MM-dd"
         let name = client.displayName.replacingOccurrences(of: " ", with: "")
         return "\(name)_Week_\(formatter.string(from: weekStart)).pdf"
-    }
-
-    private func averageCompleteness() -> Double {
-        let records = client.completenessRecords
-        guard !records.isEmpty else { return 0 }
-        return records.map(\.completenessScore).reduce(0, +) / Double(records.count)
     }
 }
 

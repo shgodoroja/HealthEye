@@ -125,4 +125,37 @@ struct CompletenessCalculatorTests {
         let weeks = CompletenessCalculator.calculateWeeklyCompleteness(metrics: metrics)
         #expect(weeks[0].notes == "Complete data for this week")
     }
+
+    @Test func scoreForSpecificWeekUsesThatWeekOnly() {
+        let metrics = [
+            makeMetric(date: "2026-02-10", steps: 5000),
+            makeMetric(date: "2026-02-11", steps: 6000),
+            makeMetric(
+                date: "2026-02-17",
+                sleep: 420,
+                hrv: 50,
+                restingHr: 60,
+                workout: 30,
+                steps: 8000
+            ),
+            makeMetric(
+                date: "2026-02-18",
+                sleep: 420,
+                hrv: 50,
+                restingHr: 60,
+                workout: 30,
+                steps: 8000
+            ),
+        ]
+
+        let firstWeek = makeDate("2026-02-09")
+        let secondWeek = makeDate("2026-02-16")
+
+        let firstWeekScore = CompletenessCalculator.score(for: firstWeek, metrics: metrics)
+        let secondWeekScore = CompletenessCalculator.score(for: secondWeek, metrics: metrics)
+
+        #expect(firstWeekScore != secondWeekScore)
+        #expect(abs(firstWeekScore - ((2.0 / 7.0) / 5.0)) < 0.001)
+        #expect(abs(secondWeekScore - (2.0 / 7.0)) < 0.001)
+    }
 }
