@@ -34,13 +34,16 @@ struct MetricCompletenessRowView: View {
             if days == 7 {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(.green)
+                    .accessibilityLabel("Complete, 7 of 7 days")
             } else if days > 0 {
                 Text("\(days)/7")
                     .font(.caption)
                     .foregroundStyle(.orange)
+                    .accessibilityLabel("\(days) of 7 days")
             } else {
                 Image(systemName: "minus.circle")
                     .foregroundStyle(.red.opacity(0.5))
+                    .accessibilityLabel("No data")
             }
         }
     }

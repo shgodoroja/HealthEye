@@ -1,9 +1,10 @@
 import SwiftUI
-import SwiftData
+import StoreKit
 
 struct PaywallView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(StoreManager.self) private var storeManager
 
     let account: CoachAccount
 
@@ -41,10 +42,13 @@ struct PaywallView: View {
                 VStack(spacing: 20) {
                     trialBanner
 
+                    errorBanner
+
                     HStack(spacing: 16) {
                         planCard(
                             name: "Solo",
-                            price: "$39/mo",
+                            product: storeManager.soloProduct,
+                            fallbackPrice: "$39.99/mo",
                             clientLimit: "Up to 30 clients",
                             features: ["Weekly reports", "Alert engine", "CSV/JSON export"],
                             planType: .solo,
@@ -53,7 +57,8 @@ struct PaywallView: View {
 
                         planCard(
                             name: "Pro",
-                            price: "$79/mo",
+                            product: storeManager.proProduct,
+                            fallbackPrice: "$79.99/mo",
                             clientLimit: "Up to 100 clients",
                             features: ["Everything in Solo", "Priority support", "Custom branding"],
                             planType: .pro,
@@ -61,6 +66,13 @@ struct PaywallView: View {
                         )
                     }
                     .padding(.horizontal)
+
+                    Button("Restore Purchases") {
+                        Task { await storeManager.restorePurchases() }
+                    }
+                    .buttonStyle(.link)
+                    .font(.callout)
+                    .padding(.bottom, 8)
                 }
                 .padding(.vertical, 24)
             }
@@ -69,7 +81,16 @@ struct PaywallView: View {
         .onAppear {
             AnalyticsService.track("paywall_viewed")
         }
+        .onChange(of: storeManager.currentEntitlement) { _, newEntitlement in
+            if newEntitlement != .trial {
+                TrialManager.selectPlan(newEntitlement, account: account)
+                AnalyticsService.track("plan_selected", properties: ["plan": newEntitlement.rawValue])
+                dismiss()
+            }
+        }
     }
+
+    // MARK: - Trial Banner
 
     @ViewBuilder
     private var trialBanner: some View {
@@ -115,9 +136,31 @@ struct PaywallView: View {
         }
     }
 
+    // MARK: - Error Banner
+
+    @ViewBuilder
+    private var errorBanner: some View {
+        if case .failed(let message) = storeManager.purchaseState {
+            HStack {
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundStyle(.red)
+                Text(message)
+                    .font(.callout)
+                    .lineLimit(2)
+            }
+            .padding()
+            .frame(maxWidth: .infinity)
+            .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
+            .padding(.horizontal)
+        }
+    }
+
+    // MARK: - Plan Card
+
     private func planCard(
         name: String,
-        price: String,
+        product: Product?,
+        fallbackPrice: String,
         clientLimit: String,
         features: [String],
         planType: PlanType,
@@ -128,9 +171,15 @@ struct PaywallView: View {
                 .font(.title2)
                 .fontWeight(.bold)
 
-            Text(price)
+            Text(product?.displayPrice ?? fallbackPrice)
                 .font(.title3)
                 .foregroundStyle(.secondary)
+
+            if product != nil {
+                Text("per month")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
 
             Divider()
 
@@ -159,12 +208,23 @@ struct PaywallView: View {
                     .padding(.vertical, 8)
                     .background(Color.secondary.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
             } else {
-                Button("Choose \(name)") {
-                    TrialManager.selectPlan(planType, account: account)
-                    AnalyticsService.track("plan_selected", properties: ["plan": planType.rawValue])
+                Button {
+                    guard let product else { return }
+                    Task {
+                        await storeManager.purchase(product)
+                    }
+                } label: {
+                    if storeManager.purchaseState == .purchasing {
+                        ProgressView()
+                            .controlSize(.small)
+                            .frame(maxWidth: .infinity)
+                    } else {
+                        Text("Choose \(name)")
+                            .frame(maxWidth: .infinity)
+                    }
                 }
                 .buttonStyle(.borderedProminent)
-                .frame(maxWidth: .infinity)
+                .disabled(product == nil || storeManager.purchaseState == .purchasing)
                 .accessibilityIdentifier("paywall-choose-\(planType.rawValue)")
             }
         }

@@ -13,17 +13,27 @@ struct ClientRowView: View {
     }
 
     private var currentWeekCompleteness: Double? {
-        let score = CompletenessCalculator.score(
-            for: CompletenessCalculator.mondayOfWeek(containing: Date()),
-            metrics: client.metrics
-        )
-        return client.metrics.isEmpty && score == 0 ? nil : score
+        let currentWeekStart = CompletenessCalculator.mondayOfWeek(containing: Date())
+        guard let record = client.completenessRecords.first(where: { $0.weekStart == currentWeekStart }) else {
+            return nil
+        }
+        return record.completenessScore
     }
 
-    private var topAlert: AlertResult? {
-        let trend = BaselineEngine.computeTrend(metrics: client.metrics)
-        let alerts = AlertRuleEngine.evaluate(trend: trend)
-        return alerts.first
+    private var topAlert: AlertEvent? {
+        let currentWeekStart = CompletenessCalculator.mondayOfWeek(containing: Date())
+        return client.alerts
+            .filter { $0.weekStart == currentWeekStart }
+            .sorted { severityOrder($0.severity) > severityOrder($1.severity) }
+            .first
+    }
+
+    private func severityOrder(_ severity: AlertSeverity) -> Int {
+        switch severity {
+        case .low: return 0
+        case .medium: return 1
+        case .high: return 2
+        }
     }
 
     var body: some View {
@@ -37,7 +47,8 @@ struct ClientRowView: View {
                         Circle()
                             .fill(alertColor(alert.severity))
                             .frame(width: 6, height: 6)
-                        Text(alert.explanation)
+                            .accessibilityLabel("\(alert.severity.rawValue) alert")
+                        Text(alert.explanationText)
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)

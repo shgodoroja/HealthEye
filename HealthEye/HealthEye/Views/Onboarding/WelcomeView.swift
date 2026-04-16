@@ -82,9 +82,11 @@ struct WelcomeView: View {
         .padding(40)
     }
 
+    private static let emailRegex = /^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/
+
     private func attemptContinue() {
         let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmed.contains("@"), trimmed.contains(".") else {
+        guard (try? Self.emailRegex.wholeMatch(in: trimmed)) != nil else {
             emailError = "Enter a valid email address."
             return
         }

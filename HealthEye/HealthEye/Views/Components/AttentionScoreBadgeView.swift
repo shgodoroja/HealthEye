@@ -32,5 +32,6 @@ struct AttentionScoreBadgeView: View {
             .frame(width: 32, height: 20)
             .background(backgroundColor.opacity(0.85), in: RoundedRectangle(cornerRadius: 4))
             .help("Attention score: \(Int(score)) (\(bucket.displayName))")
+            .accessibilityLabel("Attention score \(Int(score)), \(bucket.displayName) priority")
     }
 }

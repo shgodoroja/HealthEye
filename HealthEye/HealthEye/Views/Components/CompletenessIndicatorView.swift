@@ -17,6 +17,7 @@ struct CompletenessIndicatorView: View {
         Circle()
             .fill(color)
             .frame(width: 10, height: 10)
-            .help(String(format: "%.0f%% complete", score * 100))
+            .help(String(format: "%.0f%% data complete this week", score * 100))
+            .accessibilityLabel(String(format: "%.0f percent data complete this week", score * 100))
     }
 }

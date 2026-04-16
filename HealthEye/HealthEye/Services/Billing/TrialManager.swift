@@ -46,7 +46,19 @@ struct TrialManager {
         }
     }
 
-    // MARK: - Plan Selection (Stub)
+    // MARK: - Entitlement Sync
+
+    static func syncEntitlement(from storeManager: StoreManager, to account: CoachAccount) {
+        let entitlement = storeManager.currentEntitlement
+        if entitlement != .trial && account.planType != entitlement {
+            selectPlan(entitlement, account: account)
+        } else if entitlement == .trial && account.planType != .trial {
+            // Subscription lapsed or was revoked
+            account.planType = .trial
+        }
+    }
+
+    // MARK: - Plan Selection
 
     static func selectPlan(_ plan: PlanType, account: CoachAccount) {
         account.planType = plan

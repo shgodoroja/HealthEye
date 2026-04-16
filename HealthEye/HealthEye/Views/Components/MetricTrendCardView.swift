@@ -39,10 +39,12 @@ struct MetricTrendCardView: View {
                 if let delta = delta {
                     HStack(spacing: 2) {
                         Image(systemName: trendArrow)
+                            .accessibilityHidden(true)
                         Text(String(format: "%+.0f%%", delta))
                     }
                     .font(.caption.bold())
                     .foregroundStyle(trendColor)
+                    .accessibilityElement(children: .combine)
                 } else {
                     Text("No data")
                         .font(.caption)

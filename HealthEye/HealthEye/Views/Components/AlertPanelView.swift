@@ -35,6 +35,7 @@ struct AlertPanelView: View {
                         Image(systemName: severityIcon(alert.severity))
                             .foregroundStyle(severityColor(alert.severity))
                             .frame(width: 16)
+                            .accessibilityLabel("\(alert.severity.rawValue) severity")
 
                         VStack(alignment: .leading, spacing: 2) {
                             HStack {

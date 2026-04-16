@@ -41,6 +41,41 @@ struct AlertRuleEngineTests {
         #expect(ar001 == nil)
     }
 
+    @Test func ar001PartialTriggersWhenHRVMissingButRHRAndSleepMeetThresholds() {
+        // HRV unavailable (sparse data), but RHR up and sleep down
+        let trend = makeTrend(sleepDelta: -12, rhrDelta: 10)
+        let alerts = AlertRuleEngine.evaluate(trend: trend)
+        let partial = alerts.first { $0.ruleCode == "AR-001-partial" }
+        #expect(partial != nil)
+        #expect(partial?.severity == .medium)
+        #expect(partial?.explanation.contains("HRV data unavailable") == true)
+    }
+
+    @Test func ar001PartialDoesNotTriggerWhenRHRBelowThreshold() {
+        let trend = makeTrend(sleepDelta: -12, rhrDelta: 5)
+        let alerts = AlertRuleEngine.evaluate(trend: trend)
+        let partial = alerts.first { $0.ruleCode == "AR-001-partial" }
+        #expect(partial == nil)
+    }
+
+    @Test func ar001PartialDoesNotTriggerWhenSleepAboveThreshold() {
+        let trend = makeTrend(sleepDelta: -5, rhrDelta: 10)
+        let alerts = AlertRuleEngine.evaluate(trend: trend)
+        let partial = alerts.first { $0.ruleCode == "AR-001-partial" }
+        #expect(partial == nil)
+    }
+
+    @Test func ar001FullTakesPriorityWhenHRVAvailable() {
+        // All 3 metrics available and meeting thresholds → full AR-001 (high), not partial
+        let trend = makeTrend(sleepDelta: -12, hrvDelta: -15, rhrDelta: 10)
+        let alerts = AlertRuleEngine.evaluate(trend: trend)
+        let full = alerts.first { $0.ruleCode == "AR-001" }
+        let partial = alerts.first { $0.ruleCode == "AR-001-partial" }
+        #expect(full != nil)
+        #expect(full?.severity == .high)
+        #expect(partial == nil)
+    }
+
     // MARK: - AR-002 Sleep Drop
 
     @Test func ar002TriggersWhenSleepDropsAtLeast15Percent() {

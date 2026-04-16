@@ -30,23 +30,35 @@ struct AlertRuleEngine {
     }
 
     // AR-001: Recovery Risk (high)
-    // HRV <= -12% AND RHR >= +8% AND Sleep <= -10%
+    // Full: HRV <= -12% AND RHR >= +8% AND Sleep <= -10%
+    // Partial (AR-001-partial): HRV unavailable but RHR >= +8% AND Sleep <= -10%
     private nonisolated static func evaluateAR001(trend: MetricTrend) -> AlertResult? {
-        guard let hrvDelta = trend.hrvDelta,
-              let rhrDelta = trend.restingHrDelta,
+        guard let rhrDelta = trend.restingHrDelta,
               let sleepDelta = trend.sleepDelta else {
             return nil
         }
 
-        guard hrvDelta <= -12.0 && rhrDelta >= 8.0 && sleepDelta <= -10.0 else {
-            return nil
+        if let hrvDelta = trend.hrvDelta {
+            // Full AR-001: all three metrics available
+            guard hrvDelta <= -12.0 && rhrDelta >= 8.0 && sleepDelta <= -10.0 else {
+                return nil
+            }
+            let explanation = String(
+                format: "HRV dropped %.0f%% while resting heart rate rose %.0f%% and sleep decreased %.0f%%",
+                abs(hrvDelta), rhrDelta, abs(sleepDelta)
+            )
+            return AlertResult(ruleCode: "AR-001", severity: .high, explanation: explanation)
+        } else {
+            // Partial AR-001: HRV data unavailable, evaluate with RHR + Sleep only
+            guard rhrDelta >= 8.0 && sleepDelta <= -10.0 else {
+                return nil
+            }
+            let explanation = String(
+                format: "Resting heart rate rose %.0f%% and sleep decreased %.0f%% (HRV data unavailable for full recovery assessment)",
+                rhrDelta, abs(sleepDelta)
+            )
+            return AlertResult(ruleCode: "AR-001-partial", severity: .medium, explanation: explanation)
         }
-
-        let explanation = String(
-            format: "HRV dropped %.0f%% while resting heart rate rose %.0f%% and sleep decreased %.0f%%",
-            abs(hrvDelta), rhrDelta, abs(sleepDelta)
-        )
-        return AlertResult(ruleCode: "AR-001", severity: .high, explanation: explanation)
     }
 
     // AR-002: Sleep Drop (medium)

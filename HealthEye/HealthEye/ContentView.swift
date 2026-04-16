@@ -194,16 +194,11 @@ struct ContentView: View {
         var scores: [UUID: Double] = [:]
         let currentWeekStart = CompletenessCalculator.mondayOfWeek(containing: Date())
         for client in clients {
-            let trend = BaselineEngine.computeTrend(metrics: client.metrics)
-            let completeness = CompletenessCalculator.score(
-                for: currentWeekStart,
-                metrics: client.metrics
-            )
-            let result = AttentionScoreCalculator.calculate(
-                trend: trend,
-                completenessScore: completeness
-            )
-            scores[client.id] = result.total
+            // Read persisted score to maintain single source of truth (FR-014).
+            // Scores are computed and persisted during import via ClientInsightsRefreshService.
+            if let persisted = client.attentionScores.first(where: { $0.weekStart == currentWeekStart }) {
+                scores[client.id] = persisted.scoreTotal
+            }
         }
         clientScores = scores
     }
