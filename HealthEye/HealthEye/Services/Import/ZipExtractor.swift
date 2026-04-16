@@ -9,11 +9,13 @@ struct ZipExtractor: Sendable {
         if isZip {
             return try extractFromZip(fileURL)
         } else {
-            // Assume raw XML — validate it starts with XML-like content
+            // Assume raw XML — validate it starts with XML-like content.
             let data = try Data(contentsOf: fileURL, options: .mappedIfSafe)
             let prefix = String(data: data.prefix(100), encoding: .utf8) ?? ""
             guard prefix.contains("<?xml") || prefix.contains("<HealthData") else {
-                throw ImportError.invalidFile("File is neither a zip archive nor a valid Apple Health XML export")
+                throw ImportError.invalidFile(
+                    "File is neither a zip archive nor a valid Apple Health XML export"
+                )
             }
             return fileURL
         }
@@ -28,6 +30,8 @@ struct ZipExtractor: Sendable {
     }
 
     private static func extractFromZip(_ zipURL: URL) throws -> URL {
+#if os(macOS)
+        // macOS: delegate to /usr/bin/ditto which handles Apple Health's zip format.
         let tempDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("HealthEyeImport_\(UUID().uuidString)")
 
@@ -49,7 +53,7 @@ struct ZipExtractor: Sendable {
             throw ImportError.zipExtractionFailed(errorMsg)
         }
 
-        // Look for export.xml in extracted contents
+        // Look for export.xml in extracted contents.
         let enumerator = FileManager.default.enumerator(at: tempDir, includingPropertiesForKeys: nil)
         while let fileURL = enumerator?.nextObject() as? URL {
             if fileURL.lastPathComponent == "export.xml" {
@@ -58,5 +62,13 @@ struct ZipExtractor: Sendable {
         }
 
         throw ImportError.invalidFile("No export.xml found in zip archive")
+#else
+        // iPadOS: built-in ZIP decompression is not available without a third-party
+        // library. Direct the user to share the export.xml file from inside the ZIP.
+        throw ImportError.invalidFile(
+            "ZIP archives are not supported on iPad. "
+            + "Open the ZIP in Files, then share the export.xml file directly into HealthEye."
+        )
+#endif
     }
 }

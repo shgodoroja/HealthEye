@@ -6,6 +6,7 @@ struct ImportStepFileDropView: View {
     let onStartImport: () -> Void
 
     @State private var isDragging = false
+    @State private var showingFilePicker = false
 
     private var injectedImportFileURL: URL? {
         guard let path = ProcessInfo.processInfo.environment["UITEST_IMPORT_FILE_PATH"],
@@ -14,6 +15,11 @@ struct ImportStepFileDropView: View {
         }
         return URL(fileURLWithPath: path)
     }
+
+    private static let allowedTypes: [UTType] = [
+        UTType(filenameExtension: "zip") ?? .zip,
+        UTType(filenameExtension: "xml") ?? .xml,
+    ]
 
     var body: some View {
         VStack(spacing: 20) {
@@ -61,7 +67,7 @@ struct ImportStepFileDropView: View {
 
             HStack(spacing: 16) {
                 Button("Browse...") {
-                    openFilePanel()
+                    showingFilePicker = true
                 }
                 .controlSize(.large)
                 .accessibilityIdentifier("import-browse")
@@ -84,6 +90,25 @@ struct ImportStepFileDropView: View {
                 selectedFileURL = injectedImportFileURL
             }
         }
+        // Cross-platform file picker — works on both macOS and iPadOS.
+        .fileImporter(
+            isPresented: $showingFilePicker,
+            allowedContentTypes: Self.allowedTypes,
+            allowsMultipleSelection: false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                guard let url = urls.first else { return }
+                // On iOS, security-scoped resources must be accessed explicitly.
+                if url.startAccessingSecurityScopedResource() {
+                    selectedFileURL = url
+                } else {
+                    selectedFileURL = url
+                }
+            case .failure:
+                break
+            }
+        }
     }
 
     private func handleDrop(_ providers: [NSItemProvider]) -> Bool {
@@ -96,20 +121,5 @@ struct ImportStepFileDropView: View {
             }
         }
         return true
-    }
-
-    private func openFilePanel() {
-        let panel = NSOpenPanel()
-        panel.allowedContentTypes = [
-            UTType(filenameExtension: "zip")!,
-            UTType(filenameExtension: "xml")!,
-        ]
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = false
-        panel.message = "Select your Apple Health export file"
-
-        if panel.runModal() == .OK {
-            selectedFileURL = panel.url
-        }
     }
 }

@@ -1,16 +1,23 @@
 import Foundation
-import AppKit
 import SwiftData
 
+// MARK: - Result types
+
 struct BulkReportResult {
-    let succeeded: [String]   // client display names
-    let failed: [String]      // client display names
+    let succeeded: [String]        // client display names
+    let failed: [String]           // client display names
+    /// Generated PDFs ready to be saved/shared by the caller.
+    let pdfFiles: [(filename: String, data: Data)]
 }
+
+// MARK: - Service
 
 struct BulkReportService {
 
-    /// Generates one PDF per client for the given week and saves them all to `directory`.
-    /// Returns immediately with a result summary.
+    /// Generates one PDF per client for the given week.
+    ///
+    /// The caller is responsible for saving or sharing the returned `pdfFiles`
+    /// in a platform-appropriate way (folder picker on macOS, share sheet on iPadOS).
     static func generate(
         clients: [Client],
         weekStart: Date,
@@ -23,11 +30,7 @@ struct BulkReportService {
 
         var succeeded: [String] = []
         var failed: [String] = []
-
-        // Ask user to pick a folder once before iterating
-        guard let folderURL = pickFolder() else {
-            return BulkReportResult(succeeded: [], failed: [])
-        }
+        var pdfFiles: [(filename: String, data: Data)] = []
 
         for client in clients {
             let metrics = client.metrics
@@ -61,47 +64,34 @@ struct BulkReportService {
             }
 
             let filename = sanitizedFilename(for: client.displayName, weekStart: weekStart)
-            let fileURL = folderURL.appendingPathComponent(filename)
-
-            do {
-                try PDFReportGenerator.save(data: pdfData, to: fileURL)
-
-                let report = GeneratedReport(
-                    client: client,
-                    weekStart: weekStart,
-                    weekEnd: weekEnd,
-                    pdfPath: fileURL.path
-                )
-                context.insert(report)
-                succeeded.append(client.displayName)
-            } catch {
-                failed.append(client.displayName)
-            }
+            pdfFiles.append((filename: filename, data: pdfData))
+            succeeded.append(client.displayName)
         }
 
-        if !succeeded.isEmpty {
-            try? context.save()
-            AnalyticsService.track("bulk_reports_exported", properties: [
-                "count": String(succeeded.count),
-            ])
-        }
+        return BulkReportResult(succeeded: succeeded, failed: failed, pdfFiles: pdfFiles)
+    }
 
-        return BulkReportResult(succeeded: succeeded, failed: failed)
+    /// Persists a successfully exported PDF as a `GeneratedReport` record.
+    static func recordExport(
+        client: Client,
+        weekStart: Date,
+        weekEnd: Date,
+        pdfPath: String,
+        context: ModelContext
+    ) {
+        let report = GeneratedReport(
+            client: client,
+            weekStart: weekStart,
+            weekEnd: weekEnd,
+            pdfPath: pdfPath
+        )
+        context.insert(report)
+        try? context.save()
     }
 
     // MARK: - Private helpers
 
-    private static func pickFolder() -> URL? {
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.canCreateDirectories = true
-        panel.prompt = "Save Reports Here"
-        panel.message = "Choose the folder where all PDF reports will be saved."
-        return panel.runModal() == .OK ? panel.url : nil
-    }
-
-    private static func sanitizedFilename(for clientName: String, weekStart: Date) -> String {
+    static func sanitizedFilename(for clientName: String, weekStart: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         let name = clientName

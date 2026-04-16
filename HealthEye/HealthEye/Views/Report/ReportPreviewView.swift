@@ -3,6 +3,27 @@ import SwiftData
 import PDFKit
 import UniformTypeIdentifiers
 
+// MARK: - FileDocument wrapper for .fileExporter
+
+struct PDFFile: FileDocument {
+    static var readableContentTypes: [UTType] { [.pdf] }
+    var data: Data
+
+    init(data: Data) {
+        self.data = data
+    }
+
+    init(configuration: ReadConfiguration) throws {
+        data = configuration.file.regularFileContents ?? Data()
+    }
+
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        FileWrapper(regularFileWithContents: data)
+    }
+}
+
+// MARK: - Main view
+
 struct ReportPreviewView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -14,6 +35,8 @@ struct ReportPreviewView: View {
     @State private var state: ReportState = .loading
     @State private var pdfData: Data?
     @State private var showingPaywall = false
+    @State private var showingExporter = false
+    @State private var exportFileName = ""
 
     private var account: CoachAccount? {
         accounts.first
@@ -35,14 +58,12 @@ struct ReportPreviewView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Toolbar
             toolbar
                 .padding()
-                .background(Color(nsColor: .windowBackgroundColor))
+                .background(.background)
 
             Divider()
 
-            // Content
             switch state {
             case .loading:
                 Spacer()
@@ -54,11 +75,11 @@ struct ReportPreviewView: View {
                     PDFPreview(data: pdfData)
                 }
 
-            case .exported(let path):
+            case .exported(let name):
                 if let pdfData {
                     PDFPreview(data: pdfData)
                         .overlay(alignment: .bottom) {
-                            exportedBanner(path: path)
+                            exportedBanner(name: name)
                         }
                 }
 
@@ -73,10 +94,8 @@ struct ReportPreviewView: View {
                     Text(message)
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    Button("Retry") {
-                        generateReport()
-                    }
-                    .buttonStyle(.borderedProminent)
+                    Button("Retry") { generateReport() }
+                        .buttonStyle(.borderedProminent)
                 }
                 Spacer()
             }
@@ -86,11 +105,34 @@ struct ReportPreviewView: View {
                 PaywallView(account: account)
             }
         }
+#if os(macOS)
         .frame(minWidth: 700, minHeight: 600)
-        .onAppear {
-            generateReport()
+#endif
+        .onAppear { generateReport() }
+        .fileExporter(
+            isPresented: $showingExporter,
+            document: pdfData.map { PDFFile(data: $0) },
+            contentType: .pdf,
+            defaultFilename: exportFileName
+        ) { result in
+            switch result {
+            case .success(let url):
+                let report = GeneratedReport(
+                    client: client,
+                    weekStart: weekStart,
+                    weekEnd: weekEnd,
+                    pdfPath: url.path
+                )
+                modelContext.insert(report)
+                AnalyticsService.track("report_exported")
+                state = .exported(url.lastPathComponent)
+            case .failure(let error):
+                state = .error("Failed to save: \(error.localizedDescription)")
+            }
         }
     }
+
+    // MARK: - Toolbar
 
     private var toolbar: some View {
         HStack {
@@ -100,22 +142,22 @@ struct ReportPreviewView: View {
 
             Spacer()
 
-            DatePicker(
-                "Week of",
-                selection: $weekStart,
-                displayedComponents: .date
-            )
-            .datePickerStyle(.field)
-            .frame(width: 220)
-            .onChange(of: weekStart) {
-                // Snap to Monday
-                weekStart = CompletenessCalculator.mondayOfWeek(containing: weekStart)
-                generateReport()
-            }
+            DatePicker("Week of", selection: $weekStart, displayedComponents: .date)
+#if os(macOS)
+                .datePickerStyle(.field)
+                .frame(width: 220)
+#else
+                .datePickerStyle(.compact)
+#endif
+                .onChange(of: weekStart) {
+                    weekStart = CompletenessCalculator.mondayOfWeek(containing: weekStart)
+                    generateReport()
+                }
 
             Button("Export PDF") {
                 if let account, TrialManager.canGenerateReports(account: account) {
-                    exportPDF()
+                    exportFileName = sanitizedFileName()
+                    showingExporter = true
                 } else {
                     showingPaywall = true
                 }
@@ -124,18 +166,16 @@ struct ReportPreviewView: View {
             .disabled(pdfData == nil)
             .accessibilityIdentifier("report-export-button")
 
-            Button("Close") {
-                dismiss()
-            }
-            .accessibilityIdentifier("report-close-button")
+            Button("Close") { dismiss() }
+                .accessibilityIdentifier("report-close-button")
         }
     }
 
-    private func exportedBanner(path: String) -> some View {
+    private func exportedBanner(name: String) -> some View {
         HStack {
             Image(systemName: "checkmark.circle.fill")
                 .foregroundStyle(.green)
-            Text("Saved to: \(path)")
+            Text("Saved: \(name)")
                 .font(.caption)
                 .lineLimit(1)
                 .truncationMode(.middle)
@@ -145,19 +185,18 @@ struct ReportPreviewView: View {
         .padding()
     }
 
-    // MARK: - Actions
+    // MARK: - Report generation
 
     private func generateReport() {
         state = .loading
         pdfData = nil
 
         let metrics = client.metrics
-        let trend = BaselineEngine.computeTrend(metrics: metrics, referenceDate: weekEnd.addingTimeInterval(86400))
-
-        let completeness = CompletenessCalculator.score(
-            for: weekStart,
-            metrics: metrics
+        let trend = BaselineEngine.computeTrend(
+            metrics: metrics,
+            referenceDate: weekEnd.addingTimeInterval(86400)
         )
+        let completeness = CompletenessCalculator.score(for: weekStart, metrics: metrics)
         let scoreResult = AttentionScoreCalculator.calculate(trend: trend, completenessScore: completeness)
         let alerts = AlertRuleEngine.evaluate(trend: trend)
         let narrative = WeeklyNarrativeGenerator.generate(trend: trend, alerts: alerts)
@@ -174,46 +213,11 @@ struct ReportPreviewView: View {
         )
 
         let generated = PDFReportGenerator.generate(data: reportData)
-
         if generated.isEmpty {
             state = .error("Failed to generate PDF data.")
         } else {
             pdfData = generated
             state = .preview
-        }
-    }
-
-    private func exportPDF() {
-        guard let pdfData else { return }
-
-        let panel = NSSavePanel()
-        panel.allowedContentTypes = [.pdf]
-        panel.nameFieldStringValue = sanitizedFileName()
-        panel.canCreateDirectories = true
-
-        panel.begin { response in
-            guard response == .OK, let url = panel.url else { return }
-
-            do {
-                try PDFReportGenerator.save(data: pdfData, to: url)
-
-                DispatchQueue.main.async {
-                    let report = GeneratedReport(
-                        client: client,
-                        weekStart: weekStart,
-                        weekEnd: weekEnd,
-                        pdfPath: url.path
-                    )
-                    modelContext.insert(report)
-
-                    AnalyticsService.track("report_exported")
-                    state = .exported(url.path)
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    state = .error("Failed to save: \(error.localizedDescription)")
-                }
-            }
         }
     }
 
@@ -225,24 +229,38 @@ struct ReportPreviewView: View {
     }
 }
 
-// MARK: - PDF Preview Wrapper
+// MARK: - Cross-platform PDF canvas
 
+#if os(macOS)
 private struct PDFPreview: NSViewRepresentable {
     let data: Data
 
     func makeNSView(context: Context) -> PDFView {
-        let pdfView = PDFView()
-        pdfView.autoScales = true
-        pdfView.displayMode = .singlePageContinuous
-        if let document = PDFDocument(data: data) {
-            pdfView.document = document
-        }
-        return pdfView
+        let view = PDFView()
+        view.autoScales = true
+        view.displayMode = .singlePageContinuous
+        view.document = PDFDocument(data: data)
+        return view
     }
 
-    func updateNSView(_ pdfView: PDFView, context: Context) {
-        if let document = PDFDocument(data: data) {
-            pdfView.document = document
-        }
+    func updateNSView(_ view: PDFView, context: Context) {
+        view.document = PDFDocument(data: data)
     }
 }
+#else
+private struct PDFPreview: UIViewRepresentable {
+    let data: Data
+
+    func makeUIView(context: Context) -> PDFView {
+        let view = PDFView()
+        view.autoScales = true
+        view.displayMode = .singlePageContinuous
+        view.document = PDFDocument(data: data)
+        return view
+    }
+
+    func updateUIView(_ view: PDFView, context: Context) {
+        view.document = PDFDocument(data: data)
+    }
+}
+#endif

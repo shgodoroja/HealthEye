@@ -1,6 +1,21 @@
 import Foundation
-import AppKit
+import CoreGraphics
+import CoreText
 import PDFKit
+
+// Cross-platform font and color aliases — CoreText/CoreGraphics drawing works
+// identically on macOS and iPadOS; only the high-level wrapper types differ.
+#if canImport(AppKit)
+import AppKit
+private typealias PlatformFont  = NSFont
+private typealias PlatformColor = NSColor
+private var separatorCGColor: CGColor { NSColor.separatorColor.cgColor }
+#elseif canImport(UIKit)
+import UIKit
+private typealias PlatformFont  = UIFont
+private typealias PlatformColor = UIColor
+private var separatorCGColor: CGColor { UIColor.separator.cgColor }
+#endif
 
 struct ReportData {
     let clientName: String
@@ -117,8 +132,8 @@ struct PDFReportGenerator {
 
         // Title
         let titleAttrs: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: 22, weight: .bold),
-            .foregroundColor: NSColor.black,
+            .font: PlatformFont.systemFont(ofSize: 22, weight: .bold),
+            .foregroundColor: PlatformColor.black,
         ]
         let title = "Weekly Health Report"
         drawText(title, at: CGPoint(x: margin, y: currentY - 22), attributes: titleAttrs, context: context)
@@ -126,16 +141,16 @@ struct PDFReportGenerator {
 
         // Client name
         let nameAttrs: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: 16, weight: .semibold),
-            .foregroundColor: NSColor.darkGray,
+            .font: PlatformFont.systemFont(ofSize: 16, weight: .semibold),
+            .foregroundColor: PlatformColor.darkGray,
         ]
         drawText(data.clientName, at: CGPoint(x: margin, y: currentY - 16), attributes: nameAttrs, context: context)
         currentY -= 26
 
         // Week range and generation info
         let infoAttrs: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: 11),
-            .foregroundColor: NSColor.gray,
+            .font: PlatformFont.systemFont(ofSize: 11),
+            .foregroundColor: PlatformColor.gray,
         ]
         let weekRange = "Week: \(dateFormatter.string(from: data.weekStart)) – \(dateFormatter.string(from: data.weekEnd))"
         drawText(weekRange, at: CGPoint(x: margin, y: currentY - 11), attributes: infoAttrs, context: context)
@@ -147,7 +162,7 @@ struct PDFReportGenerator {
 
         // Divider line
         currentY -= 4
-        context.setStrokeColor(NSColor.separatorColor.cgColor)
+        context.setStrokeColor(separatorCGColor)
         context.setLineWidth(0.5)
         context.move(to: CGPoint(x: margin, y: currentY))
         context.addLine(to: CGPoint(x: pageWidth - margin, y: currentY))
@@ -165,8 +180,8 @@ struct PDFReportGenerator {
 
         let score = data.scoreResult
         let bodyAttrs: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: 13),
-            .foregroundColor: NSColor.black,
+            .font: PlatformFont.systemFont(ofSize: 13),
+            .foregroundColor: PlatformColor.black,
         ]
 
         let scoreLine = String(format: "Score: %.0f / 100  —  %@", score.total, score.bucket.displayName)
@@ -174,8 +189,8 @@ struct PDFReportGenerator {
         currentY -= 22
 
         let detailAttrs: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: 11),
-            .foregroundColor: NSColor.darkGray,
+            .font: PlatformFont.systemFont(ofSize: 11),
+            .foregroundColor: PlatformColor.darkGray,
         ]
         let breakdown = String(
             format: "Recovery (Sleep: %.1f, HRV: %.1f, RHR: %.1f)  •  Workout: %.1f  •  Steps: %.1f  •  Completeness penalty: %.1f",
@@ -194,11 +209,11 @@ struct PDFReportGenerator {
         currentY = drawSectionTitle("What Changed This Week", context: context, y: currentY)
 
         let bodyAttrs: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: 12),
-            .foregroundColor: NSColor.black,
+            .font: PlatformFont.systemFont(ofSize: 12),
+            .foregroundColor: PlatformColor.black,
         ]
 
-        let lines = wrapText(data.narrative.summary, maxWidth: contentWidth, font: NSFont.systemFont(ofSize: 12))
+        let lines = wrapText(data.narrative.summary, maxWidth: contentWidth, font: PlatformFont.systemFont(ofSize: 12))
         for line in lines {
             drawText(line, at: CGPoint(x: margin, y: currentY - 12), attributes: bodyAttrs, context: context)
             currentY -= 18
@@ -214,8 +229,8 @@ struct PDFReportGenerator {
 
         // Table header
         let headerAttrs: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: 11, weight: .semibold),
-            .foregroundColor: NSColor.darkGray,
+            .font: PlatformFont.systemFont(ofSize: 11, weight: .semibold),
+            .foregroundColor: PlatformColor.darkGray,
         ]
         let colX: [CGFloat] = [margin, margin + 120, margin + 240, margin + 380]
         let headers = ["Metric", "Recent Avg (7d)", "Baseline Avg (28d)", "Change"]
@@ -226,7 +241,7 @@ struct PDFReportGenerator {
         currentY -= 18
 
         // Divider
-        context.setStrokeColor(NSColor.separatorColor.cgColor)
+        context.setStrokeColor(separatorCGColor)
         context.setLineWidth(0.3)
         context.move(to: CGPoint(x: margin, y: currentY))
         context.addLine(to: CGPoint(x: pageWidth - margin, y: currentY))
@@ -234,8 +249,8 @@ struct PDFReportGenerator {
         currentY -= 6
 
         let rowAttrs: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: 11),
-            .foregroundColor: NSColor.black,
+            .font: PlatformFont.systemFont(ofSize: 11),
+            .foregroundColor: PlatformColor.black,
         ]
 
         let trend = data.trend
@@ -264,12 +279,12 @@ struct PDFReportGenerator {
         currentY = drawSectionTitle("Active Alerts", context: context, y: currentY)
 
         let bodyAttrs: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: 11),
-            .foregroundColor: NSColor.black,
+            .font: PlatformFont.systemFont(ofSize: 11),
+            .foregroundColor: PlatformColor.black,
         ]
         let severityAttrs: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: 11, weight: .semibold),
-            .foregroundColor: NSColor.black,
+            .font: PlatformFont.systemFont(ofSize: 11, weight: .semibold),
+            .foregroundColor: PlatformColor.black,
         ]
 
         for alert in data.alerts {
@@ -288,13 +303,13 @@ struct PDFReportGenerator {
         currentY = drawSectionTitle("Suggested Messages", context: context, y: currentY)
 
         let bodyAttrs: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: 11),
-            .foregroundColor: NSColor.black,
+            .font: PlatformFont.systemFont(ofSize: 11),
+            .foregroundColor: PlatformColor.black,
         ]
 
         for (index, message) in data.narrative.suggestedMessages.enumerated() {
             let prefix = "\(index + 1). "
-            let lines = wrapText(prefix + message, maxWidth: contentWidth - 10, font: NSFont.systemFont(ofSize: 11))
+            let lines = wrapText(prefix + message, maxWidth: contentWidth - 10, font: PlatformFont.systemFont(ofSize: 11))
             for line in lines {
                 drawText(line, at: CGPoint(x: margin + 5, y: currentY - 11), attributes: bodyAttrs, context: context)
                 currentY -= 16
@@ -307,8 +322,8 @@ struct PDFReportGenerator {
 
     private static func drawFooter(context: CGContext) {
         let footerAttrs: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: 9),
-            .foregroundColor: NSColor.gray,
+            .font: PlatformFont.systemFont(ofSize: 9),
+            .foregroundColor: PlatformColor.gray,
         ]
         drawText(
             "Generated by HealthEye  •  Confidential",
@@ -322,8 +337,8 @@ struct PDFReportGenerator {
 
     private static func drawSectionTitle(_ title: String, context: CGContext, y: CGFloat) -> CGFloat {
         let attrs: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: 14, weight: .semibold),
-            .foregroundColor: NSColor.black,
+            .font: PlatformFont.systemFont(ofSize: 14, weight: .semibold),
+            .foregroundColor: PlatformColor.black,
         ]
         drawText(title, at: CGPoint(x: margin, y: y - 14), attributes: attrs, context: context)
         return y - 24
@@ -339,7 +354,7 @@ struct PDFReportGenerator {
         context.restoreGState()
     }
 
-    private static func wrapText(_ text: String, maxWidth: CGFloat, font: NSFont) -> [String] {
+    private static func wrapText(_ text: String, maxWidth: CGFloat, font: PlatformFont) -> [String] {
         let attrs: [NSAttributedString.Key: Any] = [.font: font]
         let attrString = NSAttributedString(string: text, attributes: attrs)
         let size = attrString.size()

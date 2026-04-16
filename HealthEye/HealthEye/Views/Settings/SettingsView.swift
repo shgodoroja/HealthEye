@@ -2,6 +2,31 @@ import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
 
+// MARK: - Generic export document for .fileExporter
+
+private struct DataFile: FileDocument {
+    static var readableContentTypes: [UTType] { [.commaSeparatedText, .json, .data] }
+
+    let data: Data
+    let contentType: UTType
+
+    init(data: Data, contentType: UTType) {
+        self.data = data
+        self.contentType = contentType
+    }
+
+    init(configuration: ReadConfiguration) throws {
+        data = configuration.file.regularFileContents ?? Data()
+        contentType = .data
+    }
+
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        FileWrapper(regularFileWithContents: data)
+    }
+}
+
+// MARK: - Main view
+
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -22,6 +47,12 @@ struct SettingsView: View {
     @State private var showDeleteAllFinalConfirmation = false
     @State private var exportError: String?
 
+    // Pending export state — set by export actions, consumed by .fileExporter.
+    @State private var pendingExportData: Data?
+    @State private var pendingExportName = ""
+    @State private var pendingExportType: UTType = .data
+    @State private var showingExporter = false
+
     var body: some View {
         VStack(spacing: 0) {
             HStack {
@@ -31,7 +62,7 @@ struct SettingsView: View {
                 Button("Close") { dismiss() }
             }
             .padding()
-            .background(Color(nsColor: .windowBackgroundColor))
+            .background(.background)
 
             Divider()
 
@@ -43,7 +74,19 @@ struct SettingsView: View {
             }
             .formStyle(.grouped)
         }
+#if os(macOS)
         .frame(minWidth: 500, minHeight: 500)
+#endif
+        .fileExporter(
+            isPresented: $showingExporter,
+            document: pendingExportData.map { DataFile(data: $0, contentType: pendingExportType) },
+            contentType: pendingExportType,
+            defaultFilename: pendingExportName
+        ) { result in
+            if case .failure(let error) = result {
+                exportError = "Failed to save: \(error.localizedDescription)"
+            }
+        }
     }
 
     // MARK: - Account
@@ -63,8 +106,7 @@ struct SettingsView: View {
                 let daysLeft = TrialManager.trialDaysRemaining(account: account)
                 LabeledContent("Trial") {
                     if TrialManager.isTrialExpired(account: account) {
-                        Text("Expired")
-                            .foregroundStyle(.red)
+                        Text("Expired").foregroundStyle(.red)
                     } else {
                         Text("\(daysLeft) day\(daysLeft == 1 ? "" : "s") remaining")
                             .foregroundStyle(.orange)
@@ -91,34 +133,24 @@ struct SettingsView: View {
                 }
 
                 HStack {
-                    Button("Export CSV") {
-                        exportSingleClient(format: .csv, ext: "csv")
-                    }
-                    .disabled(selectedExportClient == nil)
+                    Button("Export CSV") { exportSingleClient(format: .csv, ext: "csv") }
+                        .disabled(selectedExportClient == nil)
 
-                    Button("Export JSON") {
-                        exportSingleClient(format: .json, ext: "json")
-                    }
-                    .disabled(selectedExportClient == nil)
+                    Button("Export JSON") { exportSingleClient(format: .json, ext: "json") }
+                        .disabled(selectedExportClient == nil)
                 }
             }
 
             HStack {
-                Button("Export All Clients (CSV)") {
-                    exportAllClients(format: .csv, ext: "csv")
-                }
-                .disabled(activeClients.isEmpty)
+                Button("Export All Clients (CSV)") { exportAllClients(format: .csv, ext: "csv") }
+                    .disabled(activeClients.isEmpty)
 
-                Button("Export All Clients (JSON)") {
-                    exportAllClients(format: .json, ext: "json")
-                }
-                .disabled(activeClients.isEmpty)
+                Button("Export All Clients (JSON)") { exportAllClients(format: .json, ext: "json") }
+                    .disabled(activeClients.isEmpty)
             }
 
             if let error = exportError {
-                Text(error)
-                    .font(.caption)
-                    .foregroundStyle(.red)
+                Text(error).font(.caption).foregroundStyle(.red)
             }
         }
     }
@@ -146,25 +178,19 @@ struct SettingsView: View {
             }
         }
         .alert("Delete Client?", isPresented: $showDeleteClientConfirmation) {
-            Button("Delete", role: .destructive) {
-                deleteSelectedClient()
-            }
+            Button("Delete", role: .destructive) { deleteSelectedClient() }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This will permanently delete \"\(selectedDeleteClient?.displayName ?? "")\" and all associated data. This cannot be undone.")
         }
         .alert("Delete All Data?", isPresented: $showDeleteAllConfirmation) {
-            Button("Continue", role: .destructive) {
-                showDeleteAllFinalConfirmation = true
-            }
+            Button("Continue", role: .destructive) { showDeleteAllFinalConfirmation = true }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This will permanently delete ALL client data. Are you sure you want to proceed?")
         }
         .alert("Final Confirmation", isPresented: $showDeleteAllFinalConfirmation) {
-            Button("Delete Everything", role: .destructive) {
-                deleteAllData()
-            }
+            Button("Delete Everything", role: .destructive) { deleteAllData() }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This action is irreversible. All clients, metrics, reports, and history will be permanently deleted.")
@@ -179,9 +205,7 @@ struct SettingsView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            LabeledContent("Version") {
-                Text("1.0.0")
-            }
+            LabeledContent("Version") { Text("1.0.0") }
         }
     }
 
@@ -190,11 +214,10 @@ struct SettingsView: View {
     private func exportSingleClient(format: ExportFormat, ext: String) {
         guard let client = selectedExportClient else { return }
         exportError = nil
-
         do {
             let data = try DataExportService.exportClient(client, format: format)
             let name = client.displayName.replacingOccurrences(of: " ", with: "")
-            saveDataWithPanel(data: data, fileName: "\(name)_export.\(ext)", ext: ext)
+            scheduleExport(data: data, fileName: "\(name)_export.\(ext)", ext: ext)
             AnalyticsService.track("data_exported", properties: ["format": ext, "scope": "single"])
         } catch {
             exportError = error.localizedDescription
@@ -203,37 +226,21 @@ struct SettingsView: View {
 
     private func exportAllClients(format: ExportFormat, ext: String) {
         exportError = nil
-
         do {
             let data = try DataExportService.exportAllClients(activeClients, format: format)
-            saveDataWithPanel(data: data, fileName: "healtheye_export.\(ext)", ext: ext)
+            scheduleExport(data: data, fileName: "healtheye_export.\(ext)", ext: ext)
             AnalyticsService.track("data_exported", properties: ["format": ext, "scope": "all"])
         } catch {
             exportError = error.localizedDescription
         }
     }
 
-    private func saveDataWithPanel(data: Data, fileName: String, ext: String) {
-        let panel = NSSavePanel()
-        panel.nameFieldStringValue = fileName
-        panel.canCreateDirectories = true
-
-        if ext == "csv" {
-            panel.allowedContentTypes = [UTType.commaSeparatedText]
-        } else {
-            panel.allowedContentTypes = [UTType.json]
-        }
-
-        panel.begin { response in
-            guard response == .OK, let url = panel.url else { return }
-            do {
-                try data.write(to: url)
-            } catch {
-                DispatchQueue.main.async {
-                    exportError = "Failed to save file: \(error.localizedDescription)"
-                }
-            }
-        }
+    /// Stores the export payload and triggers the system file exporter sheet.
+    private func scheduleExport(data: Data, fileName: String, ext: String) {
+        pendingExportData = data
+        pendingExportName = fileName
+        pendingExportType = ext == "csv" ? .commaSeparatedText : .json
+        showingExporter = true
     }
 
     private func deleteSelectedClient() {
@@ -245,8 +252,6 @@ struct SettingsView: View {
 
     private func deleteAllData() {
         AnalyticsService.track("data_deleted", properties: ["scope": "all"])
-        for client in allClients {
-            modelContext.delete(client)
-        }
+        for client in allClients { modelContext.delete(client) }
     }
 }

@@ -24,8 +24,7 @@ struct MessageHelperView: View {
                         Spacer()
 
                         Button {
-                            NSPasteboard.general.clearContents()
-                            NSPasteboard.general.setString(message, forType: .string)
+                            copyToPasteboard(message)
                             copiedIndex = index
                             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                                 if copiedIndex == index {
@@ -45,9 +44,18 @@ struct MessageHelperView: View {
                         .controlSize(.small)
                     }
                     .padding(8)
-                    .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 6))
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
                 }
             }
         }
+    }
+
+    private func copyToPasteboard(_ string: String) {
+#if os(macOS)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(string, forType: .string)
+#else
+        UIPasteboard.general.string = string
+#endif
     }
 }

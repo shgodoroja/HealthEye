@@ -1,5 +1,10 @@
 import SwiftUI
 import SwiftData
+#if canImport(AppKit)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
@@ -25,6 +30,9 @@ struct ContentView: View {
     @State private var clientScores: [UUID: Double] = [:]
     @State private var bulkReportResult: BulkReportResult? = nil
     @State private var isBulkGenerating = false
+    /// Temp file URLs staged for the iPadOS share sheet after bulk generation.
+    @State private var bulkShareURLs: [URL] = []
+    @State private var showingBulkShare = false
 
     private var filteredAndSortedClients: [Client] {
         var result = clients
@@ -155,6 +163,11 @@ struct ContentView: View {
                 Text("Loading…").onAppear { showingPaywall = false }
             }
         }
+#if os(iOS)
+        .sheet(isPresented: $showingBulkShare) {
+            ShareSheet(items: bulkShareURLs)
+        }
+#endif
         .onAppear {
             refreshScores()
             // Never show onboarding during any kind of test run — the
@@ -218,9 +231,99 @@ struct ContentView: View {
             )
             await MainActor.run {
                 isBulkGenerating = false
-                bulkReportResult = result
+                saveBulkResult(result, weekStart: weekStart)
             }
         }
+    }
+
+    @MainActor
+    private func saveBulkResult(_ result: BulkReportResult, weekStart: Date) {
+        guard !result.pdfFiles.isEmpty else {
+            bulkReportResult = result
+            return
+        }
+
+        var cal = Calendar(identifier: .iso8601)
+        cal.firstWeekday = 2
+        cal.timeZone = TimeZone(identifier: "UTC")!
+        let weekEnd = cal.date(byAdding: .day, value: 6, to: weekStart) ?? weekStart
+
+#if os(macOS)
+        // macOS: let the coach pick a folder, then write all PDFs there.
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.canCreateDirectories = true
+        panel.prompt = "Save Reports Here"
+        panel.message = "Choose the folder where all PDF reports will be saved."
+
+        guard panel.runModal() == .OK, let folderURL = panel.url else {
+            bulkReportResult = result
+            return
+        }
+
+        var savedNames: [String] = []
+        var failedNames: [String] = result.failed
+
+        for (filename, data) in result.pdfFiles {
+            let fileURL = folderURL.appendingPathComponent(filename)
+            do {
+                try data.write(to: fileURL, options: .atomic)
+                savedNames.append(filename)
+                // Find the matching client to record the export.
+                if let client = clients.first(where: {
+                    BulkReportService.sanitizedFilename(
+                        for: $0.displayName, weekStart: weekStart
+                    ) == filename
+                }) {
+                    BulkReportService.recordExport(
+                        client: client,
+                        weekStart: weekStart,
+                        weekEnd: weekEnd,
+                        pdfPath: fileURL.path,
+                        context: modelContext
+                    )
+                }
+            } catch {
+                failedNames.append(filename)
+            }
+        }
+
+        AnalyticsService.track("bulk_reports_exported", properties: [
+            "count": String(savedNames.count),
+        ])
+        bulkReportResult = BulkReportResult(
+            succeeded: savedNames,
+            failed: failedNames,
+            pdfFiles: []
+        )
+#else
+        // iPadOS: write PDFs to a temp directory and present the system share sheet.
+        let tempDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("HealthEyeBulk_\(UUID().uuidString)")
+        try? FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+
+        var urls: [URL] = []
+        for (filename, data) in result.pdfFiles {
+            let fileURL = tempDir.appendingPathComponent(filename)
+            if (try? data.write(to: fileURL, options: .atomic)) != nil {
+                urls.append(fileURL)
+            }
+        }
+
+        if !urls.isEmpty {
+            bulkShareURLs = urls
+            showingBulkShare = true
+            AnalyticsService.track("bulk_reports_exported", properties: [
+                "count": String(urls.count),
+            ])
+        }
+        bulkReportResult = BulkReportResult(
+            succeeded: result.succeeded,
+            failed: result.failed,
+            pdfFiles: []
+        )
+#endif
     }
 
     private var bulkResultTitle: String {
@@ -255,3 +358,17 @@ struct ContentView: View {
             GeneratedReport.self, MetricCompleteness.self,
         ], inMemory: true)
 }
+
+// MARK: - iOS share sheet
+
+#if os(iOS)
+private struct ShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+#endif
