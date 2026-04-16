@@ -10,7 +10,7 @@ struct AlertResult: Sendable {
 struct AlertRuleEngine {
 
     /// Evaluates all alert rules against a metric trend.
-    static func evaluate(trend: MetricTrend) -> [AlertResult] {
+    nonisolated static func evaluate(trend: MetricTrend) -> [AlertResult] {
         var results: [AlertResult] = []
 
         if let alert = evaluateAR001(trend: trend) {
@@ -31,7 +31,7 @@ struct AlertRuleEngine {
 
     // AR-001: Recovery Risk (high)
     // HRV <= -12% AND RHR >= +8% AND Sleep <= -10%
-    private static func evaluateAR001(trend: MetricTrend) -> AlertResult? {
+    private nonisolated static func evaluateAR001(trend: MetricTrend) -> AlertResult? {
         guard let hrvDelta = trend.hrvDelta,
               let rhrDelta = trend.restingHrDelta,
               let sleepDelta = trend.sleepDelta else {
@@ -51,7 +51,7 @@ struct AlertRuleEngine {
 
     // AR-002: Sleep Drop (medium)
     // Sleep <= -15%
-    private static func evaluateAR002(trend: MetricTrend) -> AlertResult? {
+    private nonisolated static func evaluateAR002(trend: MetricTrend) -> AlertResult? {
         guard let sleepDelta = trend.sleepDelta, sleepDelta <= -15.0 else {
             return nil
         }
@@ -65,7 +65,7 @@ struct AlertRuleEngine {
 
     // AR-003: Activity Drop (medium)
     // Workout <= -20%
-    private static func evaluateAR003(trend: MetricTrend) -> AlertResult? {
+    private nonisolated static func evaluateAR003(trend: MetricTrend) -> AlertResult? {
         guard let workoutDelta = trend.workoutDelta, workoutDelta <= -20.0 else {
             return nil
         }
@@ -79,7 +79,7 @@ struct AlertRuleEngine {
 
     // AR-004: Step Drop (low)
     // Steps <= -20%
-    private static func evaluateAR004(trend: MetricTrend) -> AlertResult? {
+    private nonisolated static func evaluateAR004(trend: MetricTrend) -> AlertResult? {
         guard let stepsDelta = trend.stepsDelta, stepsDelta <= -20.0 else {
             return nil
         }

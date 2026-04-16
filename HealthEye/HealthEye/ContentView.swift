@@ -219,34 +219,30 @@ struct ContentView: View {
         guard !clients.isEmpty else { return }
 
         isBulkGenerating = true
-        let weekStart = CompletenessCalculator.mondayOfWeek(containing: Date())
-        let context = modelContext
-        let activeClients = clients
+        let week = ReportSchedule.latestCompletedWeek(
+            timezoneIdentifier: account.timezone,
+            reportEndDay: account.defaultReportDay
+        )
+        let snapshots = clients.map(BulkReportClientSnapshot.init(client:))
 
         Task.detached(priority: .userInitiated) {
             let result = BulkReportService.generate(
-                clients: activeClients,
-                weekStart: weekStart,
-                context: context
+                clients: snapshots,
+                week: week
             )
             await MainActor.run {
                 isBulkGenerating = false
-                saveBulkResult(result, weekStart: weekStart)
+                saveBulkResult(result, week: week)
             }
         }
     }
 
     @MainActor
-    private func saveBulkResult(_ result: BulkReportResult, weekStart: Date) {
+    private func saveBulkResult(_ result: BulkReportResult, week: ReportWeekRange) {
         guard !result.pdfFiles.isEmpty else {
             bulkReportResult = result
             return
         }
-
-        var cal = Calendar(identifier: .iso8601)
-        cal.firstWeekday = 2
-        cal.timeZone = TimeZone(identifier: "UTC")!
-        let weekEnd = cal.date(byAdding: .day, value: 6, to: weekStart) ?? weekStart
 
 #if os(macOS)
         // macOS: let the coach pick a folder, then write all PDFs there.
@@ -265,27 +261,22 @@ struct ContentView: View {
         var savedNames: [String] = []
         var failedNames: [String] = result.failed
 
-        for (filename, data) in result.pdfFiles {
-            let fileURL = folderURL.appendingPathComponent(filename)
+        for file in result.pdfFiles {
+            let fileURL = folderURL.appendingPathComponent(file.filename)
             do {
-                try data.write(to: fileURL, options: .atomic)
-                savedNames.append(filename)
-                // Find the matching client to record the export.
-                if let client = clients.first(where: {
-                    BulkReportService.sanitizedFilename(
-                        for: $0.displayName, weekStart: weekStart
-                    ) == filename
-                }) {
+                try file.data.write(to: fileURL, options: .atomic)
+                savedNames.append(file.clientName)
+                if let client = clients.first(where: { $0.id == file.clientID }) {
                     BulkReportService.recordExport(
                         client: client,
-                        weekStart: weekStart,
-                        weekEnd: weekEnd,
+                        weekStart: week.weekStart,
+                        weekEnd: week.weekEnd,
                         pdfPath: fileURL.path,
                         context: modelContext
                     )
                 }
             } catch {
-                failedNames.append(filename)
+                failedNames.append(file.clientName)
             }
         }
 
@@ -304,9 +295,9 @@ struct ContentView: View {
         try? FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
 
         var urls: [URL] = []
-        for (filename, data) in result.pdfFiles {
-            let fileURL = tempDir.appendingPathComponent(filename)
-            if (try? data.write(to: fileURL, options: .atomic)) != nil {
+        for file in result.pdfFiles {
+            let fileURL = tempDir.appendingPathComponent(file.filename)
+            if (try? file.data.write(to: fileURL, options: .atomic)) != nil {
                 urls.append(fileURL)
             }
         }

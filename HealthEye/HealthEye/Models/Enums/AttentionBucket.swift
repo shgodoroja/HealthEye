@@ -5,7 +5,7 @@ enum AttentionBucket: String, CaseIterable, Codable {
     case medium
     case high
 
-    static func from(score: Double) -> AttentionBucket {
+    nonisolated static func from(score: Double) -> AttentionBucket {
         switch score {
         case 0..<40:
             return .low
@@ -16,11 +16,11 @@ enum AttentionBucket: String, CaseIterable, Codable {
         }
     }
 
-    var displayName: String {
+    nonisolated var displayName: String {
         rawValue.capitalized
     }
 
-    var color: String {
+    nonisolated var color: String {
         switch self {
         case .low: return "green"
         case .medium: return "yellow"

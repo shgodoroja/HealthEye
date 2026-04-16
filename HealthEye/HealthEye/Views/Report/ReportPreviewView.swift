@@ -37,6 +37,7 @@ struct ReportPreviewView: View {
     @State private var showingPaywall = false
     @State private var showingExporter = false
     @State private var exportFileName = ""
+    @State private var didInitializeWeek = false
 
     private var account: CoachAccount? {
         accounts.first
@@ -49,11 +50,12 @@ struct ReportPreviewView: View {
         case error(String)
     }
 
-    private var weekEnd: Date {
-        var cal = Calendar(identifier: .iso8601)
-        cal.firstWeekday = 2
-        cal.timeZone = TimeZone(identifier: "UTC")!
-        return cal.date(byAdding: .day, value: 6, to: weekStart) ?? weekStart
+    private var selectedWeek: ReportWeekRange {
+        ReportSchedule.weekContaining(
+            weekStart,
+            timezoneIdentifier: account?.timezone ?? TimeZone.current.identifier,
+            reportEndDay: account?.defaultReportDay ?? 7
+        )
     }
 
     var body: some View {
@@ -108,7 +110,16 @@ struct ReportPreviewView: View {
 #if os(macOS)
         .frame(minWidth: 700, minHeight: 600)
 #endif
-        .onAppear { generateReport() }
+        .onAppear {
+            if !didInitializeWeek, let account {
+                weekStart = ReportSchedule.latestCompletedWeek(
+                    timezoneIdentifier: account.timezone,
+                    reportEndDay: account.defaultReportDay
+                ).weekStart
+                didInitializeWeek = true
+            }
+            generateReport()
+        }
         .fileExporter(
             isPresented: $showingExporter,
             document: pdfData.map { PDFFile(data: $0) },
@@ -119,11 +130,12 @@ struct ReportPreviewView: View {
             case .success(let url):
                 let report = GeneratedReport(
                     client: client,
-                    weekStart: weekStart,
-                    weekEnd: weekEnd,
+                    weekStart: selectedWeek.weekStart,
+                    weekEnd: selectedWeek.weekEnd,
                     pdfPath: url.path
                 )
                 modelContext.insert(report)
+                try? modelContext.save()
                 AnalyticsService.track("report_exported")
                 state = .exported(url.lastPathComponent)
             case .failure(let error):
@@ -150,7 +162,11 @@ struct ReportPreviewView: View {
                 .datePickerStyle(.compact)
 #endif
                 .onChange(of: weekStart) {
-                    weekStart = CompletenessCalculator.mondayOfWeek(containing: weekStart)
+                    weekStart = ReportSchedule.weekContaining(
+                        weekStart,
+                        timezoneIdentifier: account?.timezone ?? TimeZone.current.identifier,
+                        reportEndDay: account?.defaultReportDay ?? 7
+                    ).weekStart
                     generateReport()
                 }
 
@@ -192,19 +208,24 @@ struct ReportPreviewView: View {
         pdfData = nil
 
         let metrics = client.metrics
+        let week = selectedWeek
         let trend = BaselineEngine.computeTrend(
             metrics: metrics,
-            referenceDate: weekEnd.addingTimeInterval(86400)
+            referenceDate: week.dayAfterWeekEnd
         )
-        let completeness = CompletenessCalculator.score(for: weekStart, metrics: metrics)
+        let completeness = CompletenessCalculator.score(
+            from: week.weekStart,
+            to: week.weekEnd,
+            metrics: metrics
+        )
         let scoreResult = AttentionScoreCalculator.calculate(trend: trend, completenessScore: completeness)
         let alerts = AlertRuleEngine.evaluate(trend: trend)
         let narrative = WeeklyNarrativeGenerator.generate(trend: trend, alerts: alerts)
 
         let reportData = ReportData(
             clientName: client.displayName,
-            weekStart: weekStart,
-            weekEnd: weekEnd,
+            weekStart: week.weekStart,
+            weekEnd: week.weekEnd,
             trend: trend,
             scoreResult: scoreResult,
             alerts: alerts,
@@ -225,7 +246,7 @@ struct ReportPreviewView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         let name = client.displayName.replacingOccurrences(of: " ", with: "")
-        return "\(name)_Week_\(formatter.string(from: weekStart)).pdf"
+        return "\(name)_Week_\(formatter.string(from: selectedWeek.weekStart)).pdf"
     }
 }
 

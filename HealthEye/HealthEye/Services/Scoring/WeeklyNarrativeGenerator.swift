@@ -8,13 +8,13 @@ struct NarrativeResult: Sendable {
 struct WeeklyNarrativeGenerator {
 
     /// Generates a human-readable "What changed this week" summary from metric trend.
-    static func generate(trend: MetricTrend, alerts: [AlertResult]) -> NarrativeResult {
+    nonisolated static func generate(trend: MetricTrend, alerts: [AlertResult]) -> NarrativeResult {
         let summary = generateSummary(trend: trend)
         let messages = generateMessages(alerts: alerts, trend: trend)
         return NarrativeResult(summary: summary, suggestedMessages: messages)
     }
 
-    private static func generateSummary(trend: MetricTrend) -> String {
+    private nonisolated static func generateSummary(trend: MetricTrend) -> String {
         var changes: [(String, Double)] = []
 
         if let delta = trend.sleepDelta {
@@ -56,7 +56,7 @@ struct WeeklyNarrativeGenerator {
         return sentences.joined(separator: " ")
     }
 
-    private static func generateMessages(alerts: [AlertResult], trend: MetricTrend) -> [String] {
+    private nonisolated static func generateMessages(alerts: [AlertResult], trend: MetricTrend) -> [String] {
         let maxSeverity = alerts.map(\.severity).max(by: { severityRank($0) < severityRank($1) })
 
         switch maxSeverity {
@@ -71,7 +71,7 @@ struct WeeklyNarrativeGenerator {
         }
     }
 
-    private static func severityRank(_ severity: AlertSeverity) -> Int {
+    private nonisolated static func severityRank(_ severity: AlertSeverity) -> Int {
         switch severity {
         case .low: return 0
         case .medium: return 1
@@ -79,7 +79,7 @@ struct WeeklyNarrativeGenerator {
         }
     }
 
-    private static func highSeverityMessages(alerts: [AlertResult]) -> [String] {
+    private nonisolated static func highSeverityMessages(alerts: [AlertResult]) -> [String] {
         [
             "Hey, I noticed some changes in your recovery data this week. How are you feeling? Let's check in and see if we need to adjust anything.",
             "Your recent health data shows some shifts in sleep, HRV, and heart rate. No need to worry — just want to make sure you're doing okay. Can we chat?",
@@ -87,7 +87,7 @@ struct WeeklyNarrativeGenerator {
         ]
     }
 
-    private static func mediumSeverityMessages(alerts: [AlertResult]) -> [String] {
+    private nonisolated static func mediumSeverityMessages(alerts: [AlertResult]) -> [String] {
         let hasActivityDrop = alerts.contains { $0.ruleCode == "AR-003" }
         let hasSleepDrop = alerts.contains { $0.ruleCode == "AR-002" }
 
@@ -109,14 +109,14 @@ struct WeeklyNarrativeGenerator {
         }
     }
 
-    private static func lowSeverityMessages() -> [String] {
+    private nonisolated static func lowSeverityMessages() -> [String] {
         [
             "Quick check-in: your steps were down a bit this week. Nothing major, but wanted to see how you're doing!",
             "I noticed your daily steps dipped this week. Just a heads-up — how are things going?",
         ]
     }
 
-    private static func encouragementMessages(trend: MetricTrend) -> [String] {
+    private nonisolated static func encouragementMessages(trend: MetricTrend) -> [String] {
         [
             "Great week! Your numbers are looking solid. Keep up the good work!",
             "Everything looks steady this week. Nice consistency — that's what builds long-term results.",

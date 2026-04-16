@@ -17,19 +17,19 @@ struct AttentionScoreResult: Sendable {
 struct AttentionScoreCalculator {
 
     // Weight constants
-    private static let recoveryWeight: Double = 45.0
-    private static let workoutWeight: Double = 25.0
-    private static let stepsWeight: Double = 15.0
-    private static let completenessWeight: Double = 15.0
+    private nonisolated static let recoveryWeight: Double = 45.0
+    private nonisolated static let workoutWeight: Double = 25.0
+    private nonisolated static let stepsWeight: Double = 15.0
+    private nonisolated static let completenessWeight: Double = 15.0
 
     // Recovery sub-weights (within the 45% recovery bucket)
-    private static let hrvSubWeight: Double = 0.40
-    private static let rhrSubWeight: Double = 0.30
-    private static let sleepSubWeight: Double = 0.30
+    private nonisolated static let hrvSubWeight: Double = 0.40
+    private nonisolated static let rhrSubWeight: Double = 0.30
+    private nonisolated static let sleepSubWeight: Double = 0.30
 
     /// Computes attention score from metric trend and completeness.
     /// Higher score = needs MORE attention (worse trends).
-    static func calculate(
+    nonisolated static func calculate(
         trend: MetricTrend,
         completenessScore: Double
     ) -> AttentionScoreResult {
@@ -77,7 +77,7 @@ struct AttentionScoreCalculator {
     /// - `invert: true` means negative delta = worse (HRV, Sleep, Workout, Steps dropping is bad)
     /// - `invert: false` means positive delta = worse (RHR rising is bad)
     /// Missing data (nil delta) returns 0.0 and is handled by completeness separately.
-    private static func deviationScore(delta: Double?, invert: Bool) -> Double {
+    private nonisolated static func deviationScore(delta: Double?, invert: Bool) -> Double {
         guard let delta = delta else { return 0.0 }
 
         let relevantDelta = invert ? -delta : delta
@@ -88,7 +88,7 @@ struct AttentionScoreCalculator {
         return score
     }
 
-    private static func computeSourceHash(trend: MetricTrend, completenessScore: Double) -> String {
+    private nonisolated static func computeSourceHash(trend: MetricTrend, completenessScore: Double) -> String {
         var values: [String] = []
 
         // Sort by key for determinism

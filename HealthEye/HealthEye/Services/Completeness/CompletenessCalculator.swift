@@ -54,6 +54,21 @@ struct CompletenessCalculator {
             .score ?? 0
     }
 
+    static func score(
+        from weekStart: Date,
+        to weekEnd: Date,
+        metrics: [MetricDaily]
+    ) -> Double {
+        let cal = calendar
+        let start = cal.startOfDay(for: weekStart)
+        let end = cal.startOfDay(for: weekEnd)
+        let days = metrics.filter { metric in
+            let day = cal.startOfDay(for: metric.date)
+            return day >= start && day <= end
+        }
+        return calculateScore(days: days)
+    }
+
     private static func calculateForWeek(weekStart: Date, days: [MetricDaily]) -> WeeklyCompleteness {
         let totalDays = days.count
         let daysWithSleep = days.filter { $0.sleepMinutes != nil }.count
@@ -61,16 +76,7 @@ struct CompletenessCalculator {
         let daysWithRestingHR = days.filter { $0.restingHrBpm != nil }.count
         let daysWithWorkout = days.filter { $0.workoutMinutes != nil }.count
         let daysWithSteps = days.filter { $0.steps != nil }.count
-
-        // Score = mean of (days_with_data / 7) across 5 metrics
-        let metricScores = [
-            Double(daysWithSleep) / 7.0,
-            Double(daysWithHRV) / 7.0,
-            Double(daysWithRestingHR) / 7.0,
-            Double(daysWithWorkout) / 7.0,
-            Double(daysWithSteps) / 7.0,
-        ]
-        let score = metricScores.reduce(0, +) / 5.0
+        let score = calculateScore(days: days)
 
         // Generate notes for gaps
         var gaps: [String] = []
@@ -95,6 +101,23 @@ struct CompletenessCalculator {
             score: score,
             notes: notes
         )
+    }
+
+    private static func calculateScore(days: [MetricDaily]) -> Double {
+        let daysWithSleep = days.filter { $0.sleepMinutes != nil }.count
+        let daysWithHRV = days.filter { $0.hrvMs != nil }.count
+        let daysWithRestingHR = days.filter { $0.restingHrBpm != nil }.count
+        let daysWithWorkout = days.filter { $0.workoutMinutes != nil }.count
+        let daysWithSteps = days.filter { $0.steps != nil }.count
+
+        let metricScores = [
+            Double(daysWithSleep) / 7.0,
+            Double(daysWithHRV) / 7.0,
+            Double(daysWithRestingHR) / 7.0,
+            Double(daysWithWorkout) / 7.0,
+            Double(daysWithSteps) / 7.0,
+        ]
+        return metricScores.reduce(0, +) / 5.0
     }
 
     @MainActor

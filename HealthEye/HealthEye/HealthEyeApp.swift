@@ -23,23 +23,13 @@ struct HealthEyeApp: App {
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
-            if isTestRun {
-                fatalError("Could not create in-memory ModelContainer: \(error)")
-            }
-            // Persistent store migration failed (e.g. schema changed during
-            // development). Reset the store and try once more rather than
-            // crashing.
-            let storeURL = modelConfiguration.url
-            try? FileManager.default.removeItem(at: storeURL)
-            try? FileManager.default.removeItem(
-                at: storeURL.appendingPathExtension("shm"))
-            try? FileManager.default.removeItem(
-                at: storeURL.appendingPathExtension("wal"))
-            do {
-                return try ModelContainer(for: schema, configurations: [modelConfiguration])
-            } catch {
-                fatalError("Could not create ModelContainer even after reset: \(error)")
-            }
+            // Never delete the persistent store automatically. Health data is
+            // user-owned; migration failures must preserve data for recovery.
+            fatalError("""
+            Could not create ModelContainer: \(error)
+            Persistent store was left untouched at \(modelConfiguration.url.path).
+            Recover by backing up/exporting that store before applying a migration fix.
+            """)
         }
     }()
 

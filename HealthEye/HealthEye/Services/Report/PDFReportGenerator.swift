@@ -9,12 +9,10 @@ import PDFKit
 import AppKit
 private typealias PlatformFont  = NSFont
 private typealias PlatformColor = NSColor
-private var separatorCGColor: CGColor { NSColor.separatorColor.cgColor }
 #elseif canImport(UIKit)
 import UIKit
 private typealias PlatformFont  = UIFont
 private typealias PlatformColor = UIColor
-private var separatorCGColor: CGColor { UIColor.separator.cgColor }
 #endif
 
 struct ReportData {
@@ -31,12 +29,12 @@ struct ReportData {
 struct PDFReportGenerator {
 
     // Page dimensions: US Letter (612 x 792 points)
-    private static let pageWidth: CGFloat = 612
-    private static let pageHeight: CGFloat = 792
-    private static let margin: CGFloat = 50
-    private static let contentWidth: CGFloat = 612 - 100 // pageWidth - 2 * margin
+    private nonisolated static let pageWidth: CGFloat = 612
+    private nonisolated static let pageHeight: CGFloat = 792
+    private nonisolated static let margin: CGFloat = 50
+    private nonisolated static let contentWidth: CGFloat = 612 - 100 // pageWidth - 2 * margin
 
-    private static var dateFormatter: DateFormatter {
+    private nonisolated static var dateFormatter: DateFormatter {
         let f = DateFormatter()
         f.dateStyle = .medium
         f.timeStyle = .none
@@ -44,7 +42,7 @@ struct PDFReportGenerator {
     }
 
     /// Generates PDF data from report data.
-    static func generate(data: ReportData) -> Data {
+    nonisolated static func generate(data: ReportData) -> Data {
         let pdfData = NSMutableData()
         var mediaBox = CGRect(x: 0, y: 0, width: pageWidth, height: pageHeight)
 
@@ -121,13 +119,13 @@ struct PDFReportGenerator {
     }
 
     /// Saves PDF data to the specified file URL.
-    static func save(data: Data, to url: URL) throws {
+    nonisolated static func save(data: Data, to url: URL) throws {
         try data.write(to: url, options: .atomic)
     }
 
     // MARK: - Drawing Sections
 
-    private static func drawHeader(context: CGContext, data: ReportData, y: CGFloat) -> CGFloat {
+    private nonisolated static func drawHeader(context: CGContext, data: ReportData, y: CGFloat) -> CGFloat {
         var currentY = y
 
         // Title
@@ -162,7 +160,7 @@ struct PDFReportGenerator {
 
         // Divider line
         currentY -= 4
-        context.setStrokeColor(separatorCGColor)
+        context.setStrokeColor(CGColor(gray: 0.75, alpha: 1.0))
         context.setLineWidth(0.5)
         context.move(to: CGPoint(x: margin, y: currentY))
         context.addLine(to: CGPoint(x: pageWidth - margin, y: currentY))
@@ -172,7 +170,7 @@ struct PDFReportGenerator {
         return currentY
     }
 
-    private static func drawAttentionScore(context: CGContext, data: ReportData, y: CGFloat) -> CGFloat {
+    private nonisolated static func drawAttentionScore(context: CGContext, data: ReportData, y: CGFloat) -> CGFloat {
         var currentY = y
 
         // Section title
@@ -203,7 +201,7 @@ struct PDFReportGenerator {
         return currentY
     }
 
-    private static func drawNarrative(context: CGContext, data: ReportData, y: CGFloat) -> CGFloat {
+    private nonisolated static func drawNarrative(context: CGContext, data: ReportData, y: CGFloat) -> CGFloat {
         var currentY = y
 
         currentY = drawSectionTitle("What Changed This Week", context: context, y: currentY)
@@ -222,7 +220,7 @@ struct PDFReportGenerator {
         return currentY
     }
 
-    private static func drawMetricTrends(context: CGContext, data: ReportData, y: CGFloat) -> CGFloat {
+    private nonisolated static func drawMetricTrends(context: CGContext, data: ReportData, y: CGFloat) -> CGFloat {
         var currentY = y
 
         currentY = drawSectionTitle("Metric Trends", context: context, y: currentY)
@@ -241,7 +239,7 @@ struct PDFReportGenerator {
         currentY -= 18
 
         // Divider
-        context.setStrokeColor(separatorCGColor)
+        context.setStrokeColor(CGColor(gray: 0.75, alpha: 1.0))
         context.setLineWidth(0.3)
         context.move(to: CGPoint(x: margin, y: currentY))
         context.addLine(to: CGPoint(x: pageWidth - margin, y: currentY))
@@ -273,7 +271,7 @@ struct PDFReportGenerator {
         return currentY
     }
 
-    private static func drawAlerts(context: CGContext, data: ReportData, y: CGFloat) -> CGFloat {
+    private nonisolated static func drawAlerts(context: CGContext, data: ReportData, y: CGFloat) -> CGFloat {
         var currentY = y
 
         currentY = drawSectionTitle("Active Alerts", context: context, y: currentY)
@@ -297,7 +295,7 @@ struct PDFReportGenerator {
         return currentY
     }
 
-    private static func drawMessages(context: CGContext, data: ReportData, y: CGFloat) -> CGFloat {
+    private nonisolated static func drawMessages(context: CGContext, data: ReportData, y: CGFloat) -> CGFloat {
         var currentY = y
 
         currentY = drawSectionTitle("Suggested Messages", context: context, y: currentY)
@@ -320,7 +318,7 @@ struct PDFReportGenerator {
         return currentY
     }
 
-    private static func drawFooter(context: CGContext) {
+    private nonisolated static func drawFooter(context: CGContext) {
         let footerAttrs: [NSAttributedString.Key: Any] = [
             .font: PlatformFont.systemFont(ofSize: 9),
             .foregroundColor: PlatformColor.gray,
@@ -335,7 +333,7 @@ struct PDFReportGenerator {
 
     // MARK: - Drawing Helpers
 
-    private static func drawSectionTitle(_ title: String, context: CGContext, y: CGFloat) -> CGFloat {
+    private nonisolated static func drawSectionTitle(_ title: String, context: CGContext, y: CGFloat) -> CGFloat {
         let attrs: [NSAttributedString.Key: Any] = [
             .font: PlatformFont.systemFont(ofSize: 14, weight: .semibold),
             .foregroundColor: PlatformColor.black,
@@ -344,7 +342,7 @@ struct PDFReportGenerator {
         return y - 24
     }
 
-    private static func drawText(_ text: String, at point: CGPoint, attributes: [NSAttributedString.Key: Any], context: CGContext) {
+    private nonisolated static func drawText(_ text: String, at point: CGPoint, attributes: [NSAttributedString.Key: Any], context: CGContext) {
         let attrString = NSAttributedString(string: text, attributes: attributes)
         let line = CTLineCreateWithAttributedString(attrString)
 
@@ -354,7 +352,7 @@ struct PDFReportGenerator {
         context.restoreGState()
     }
 
-    private static func wrapText(_ text: String, maxWidth: CGFloat, font: PlatformFont) -> [String] {
+    private nonisolated static func wrapText(_ text: String, maxWidth: CGFloat, font: PlatformFont) -> [String] {
         let attrs: [NSAttributedString.Key: Any] = [.font: font]
         let attrString = NSAttributedString(string: text, attributes: attrs)
         let size = attrString.size()
@@ -385,12 +383,12 @@ struct PDFReportGenerator {
         return lines
     }
 
-    private static func formatOptional(_ value: Double?) -> String {
+    private nonisolated static func formatOptional(_ value: Double?) -> String {
         guard let v = value else { return "—" }
         return String(format: "%.1f", v)
     }
 
-    private static func formatDelta(_ value: Double?) -> String {
+    private nonisolated static func formatDelta(_ value: Double?) -> String {
         guard let v = value else { return "—" }
         let sign = v >= 0 ? "+" : ""
         return String(format: "%@%.1f%%", sign, v)
