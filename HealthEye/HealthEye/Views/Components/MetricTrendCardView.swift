@@ -81,6 +81,6 @@ struct MetricTrendCardView: View {
             }
         }
         .padding(12)
-        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
     }
 }

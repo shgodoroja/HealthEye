@@ -33,7 +33,7 @@ struct PaywallView: View {
                     .accessibilityIdentifier("paywall-close")
             }
             .padding()
-            .background(Color(nsColor: .windowBackgroundColor))
+            .background(.background)
 
             Divider()
 

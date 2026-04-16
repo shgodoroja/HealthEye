@@ -44,11 +44,10 @@ final class HealthEyeUITests: XCTestCase {
         nameField.typeText("Jordan Medium")
         app.buttons["client-form-save"].tap()
 
-        // Tap the sidebar row specifically — after the form sheet closes the client may
-        // already be shown in the detail pane, causing "Jordan Medium" to match both
-        // the outline cell *and* the detail header.  Querying from the outline avoids
-        // an ambiguous-element error.
-        let sidebarLabel = app.outlines.staticTexts["Jordan Medium"].firstMatch
+        // Tap the sidebar row — on macOS this is an outline cell; on iPad a table cell.
+        // Either way the detail header lives in a ScrollView, so querying from the
+        // sidebar-specific container avoids any ambiguous-element errors.
+        let sidebarLabel = sidebarRow(labeled: "Jordan Medium", in: app)
         XCTAssertTrue(sidebarLabel.waitForExistence(timeout: 5))
         sidebarLabel.tap()
 
@@ -80,9 +79,7 @@ final class HealthEyeUITests: XCTestCase {
             "UITEST_SCENARIO": "expired_trial_with_client",
         ])
 
-        // Tap the sidebar row — the client name also appears in the detail header once
-        // selected, so target the outline specifically to avoid ambiguous element errors.
-        let sidebarLabel = app.outlines.staticTexts["Taylor Client"].firstMatch
+        let sidebarLabel = sidebarRow(labeled: "Taylor Client", in: app)
         XCTAssertTrue(sidebarLabel.waitForExistence(timeout: 5))
         sidebarLabel.tap()
 
@@ -100,9 +97,7 @@ final class HealthEyeUITests: XCTestCase {
             "UITEST_SCENARIO": "active_trial_with_client",
         ])
 
-        // Tap the sidebar row — the client name also appears in the detail header once
-        // selected, so target the outline specifically to avoid ambiguous element errors.
-        let sidebarLabel = app.outlines.staticTexts["Taylor Client"].firstMatch
+        let sidebarLabel = sidebarRow(labeled: "Taylor Client", in: app)
         XCTAssertTrue(sidebarLabel.waitForExistence(timeout: 5))
         sidebarLabel.tap()
 
@@ -116,6 +111,20 @@ final class HealthEyeUITests: XCTestCase {
         let exportButton = app.buttons["report-export-button"]
         XCTAssertTrue(exportButton.waitForExistence(timeout: 5))
         XCTAssertTrue(exportButton.isEnabled)
+    }
+
+    /// Returns the sidebar row element for the given client name.
+    ///
+    /// macOS NavigationSplitView sidebar List → NSOutlineView → XCUI `outline`.
+    /// iPadOS 16+ List → UICollectionView → XCUI `cell` (not `table`).
+    /// Using `app.cells.containing(...)` covers all iOS versions and both platforms
+    /// without relying on a specific container type.
+    private func sidebarRow(labeled label: String, in app: XCUIApplication) -> XCUIElement {
+#if os(macOS)
+        app.outlines.staticTexts[label].firstMatch
+#else
+        app.cells.containing(.staticText, identifier: label).firstMatch
+#endif
     }
 
     private func launchApp(environment: [String: String] = [:]) -> XCUIApplication {
