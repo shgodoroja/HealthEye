@@ -126,7 +126,9 @@ final class HealthEyeUITests: XCTestCase {
             "UITEST_SCENARIO": "expired_trial_with_client",
         ])
 
-        XCTAssertTrue(sidebarRow(labeled: "Taylor Client", in: app).waitForExistence(timeout: 5))
+        let expiredSidebarLabel = sidebarRow(labeled: "Taylor Client", in: app)
+        XCTAssertTrue(expiredSidebarLabel.waitForExistence(timeout: 5))
+        expiredSidebarLabel.tap()
 
         let generateButton = app.buttons["generate-all-reports-button"]
         XCTAssertTrue(generateButton.waitForExistence(timeout: 5))
@@ -148,7 +150,9 @@ final class HealthEyeUITests: XCTestCase {
             "UITEST_SKIP_FOLDER_PICKER": "1",
         ])
 
-        XCTAssertTrue(sidebarRow(labeled: "Taylor Client", in: app).waitForExistence(timeout: 5))
+        let activeSidebarLabel = sidebarRow(labeled: "Taylor Client", in: app)
+        XCTAssertTrue(activeSidebarLabel.waitForExistence(timeout: 5))
+        activeSidebarLabel.tap()
 
         let generateButton = app.buttons["generate-all-reports-button"]
         XCTAssertTrue(generateButton.waitForExistence(timeout: 5))
@@ -178,7 +182,9 @@ final class HealthEyeUITests: XCTestCase {
             "UITEST_SCENARIO": "active_trial_with_client",
         ])
 
-        XCTAssertTrue(sidebarRow(labeled: "Taylor Client", in: app).waitForExistence(timeout: 5))
+        let exportSidebarLabel = sidebarRow(labeled: "Taylor Client", in: app)
+        XCTAssertTrue(exportSidebarLabel.waitForExistence(timeout: 5))
+        exportSidebarLabel.tap()
 
         app.buttons["toolbar-settings"].tap()
 
