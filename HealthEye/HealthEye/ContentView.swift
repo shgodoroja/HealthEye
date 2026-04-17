@@ -253,6 +253,19 @@ struct ContentView: View {
         }
 
 #if os(macOS)
+        // UI test mode: skip the folder picker and report results immediately.
+        // This avoids interactions with system panels that XCUI cannot access.
+        let skipFolderPicker =
+            ProcessInfo.processInfo.environment["UITEST_SKIP_FOLDER_PICKER"] == "1"
+        guard !skipFolderPicker else {
+            bulkReportResult = BulkReportResult(
+                succeeded: result.pdfFiles.map(\.clientName),
+                failed: result.failed,
+                pdfFiles: []
+            )
+            return
+        }
+
         // macOS: let the coach pick a folder, then write all PDFs there.
         let panel = NSOpenPanel()
         panel.canChooseFiles = false

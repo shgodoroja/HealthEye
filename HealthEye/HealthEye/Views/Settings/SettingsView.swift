@@ -144,9 +144,11 @@ struct SettingsView: View {
             HStack {
                 Button("Export All Clients (CSV)") { exportAllClients(format: .csv, ext: "csv") }
                     .disabled(activeClients.isEmpty)
+                    .accessibilityIdentifier("export-all-csv-button")
 
                 Button("Export All Clients (JSON)") { exportAllClients(format: .json, ext: "json") }
                     .disabled(activeClients.isEmpty)
+                    .accessibilityIdentifier("export-all-json-button")
             }
 
             if let error = exportError {

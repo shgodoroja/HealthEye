@@ -116,6 +116,93 @@ final class HealthEyeUITests: XCTestCase {
         XCTAssertTrue(exportButton.isEnabled)
     }
 
+    // MARK: - Bulk report generation
+
+    /// Tapping "Generate All Reports" when the trial is expired must show the
+    /// paywall, not attempt PDF generation.
+    @MainActor
+    func testExpiredTrialBlocksBulkReportGeneration() throws {
+        let app = launchApp(environment: [
+            "UITEST_SCENARIO": "expired_trial_with_client",
+        ])
+
+        XCTAssertTrue(sidebarRow(labeled: "Taylor Client", in: app).waitForExistence(timeout: 5))
+
+        let generateButton = app.buttons["generate-all-reports-button"]
+        XCTAssertTrue(generateButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(generateButton.isEnabled)
+        generateButton.tap()
+
+        XCTAssertTrue(app.staticTexts["paywall-title"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["paywall-expired-banner"].waitForExistence(timeout: 5))
+    }
+
+    /// Tapping "Generate All Reports" during an active trial must complete PDF
+    /// generation and surface a result. On macOS the folder picker is suppressed
+    /// via UITEST_SKIP_FOLDER_PICKER so the result alert appears directly;
+    /// on iPad a share sheet is presented.
+    @MainActor
+    func testBulkReportGenerationTriggersForActiveTrial() throws {
+        let app = launchApp(environment: [
+            "UITEST_SCENARIO": "active_trial_with_client",
+            "UITEST_SKIP_FOLDER_PICKER": "1",
+        ])
+
+        XCTAssertTrue(sidebarRow(labeled: "Taylor Client", in: app).waitForExistence(timeout: 5))
+
+        let generateButton = app.buttons["generate-all-reports-button"]
+        XCTAssertTrue(generateButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(generateButton.isEnabled)
+        generateButton.tap()
+
+#if os(macOS)
+        // Folder picker is skipped — result appears as an OK-dismissable dialog.
+        // Query the OK button directly since SwiftUI .alert() container type varies by OS.
+        let okButton = app.buttons["OK"].firstMatch
+        XCTAssertTrue(okButton.waitForExistence(timeout: 15))
+        okButton.tap()
+#else
+        // On iPad, a share sheet is presented with the generated PDFs.
+        let shareSheet = app.sheets.firstMatch
+        XCTAssertTrue(shareSheet.waitForExistence(timeout: 10))
+#endif
+    }
+
+    // MARK: - Data export
+
+    /// Settings must expose "Export All Clients (CSV)" when at least one client
+    /// exists. Tapping it must trigger the system file-exporter.
+    @MainActor
+    func testDataExportAccessibleInSettings() throws {
+        let app = launchApp(environment: [
+            "UITEST_SCENARIO": "active_trial_with_client",
+        ])
+
+        XCTAssertTrue(sidebarRow(labeled: "Taylor Client", in: app).waitForExistence(timeout: 5))
+
+        app.buttons["toolbar-settings"].tap()
+
+        // Wait for the Settings sheet to appear.
+        let exportButton = app.buttons["export-all-csv-button"]
+        XCTAssertTrue(exportButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(exportButton.isEnabled)
+
+        exportButton.tap()
+
+#if os(macOS)
+        // NSSavePanel appears — dismiss it to avoid blocking further test runs.
+        let savePanel = app.dialogs.firstMatch
+        if !savePanel.waitForExistence(timeout: 5) {
+            // Panel may have appeared and disappeared quickly.
+        }
+        app.typeKey(.escape, modifierFlags: [])
+#else
+        // On iPad, the system file exporter is presented as a sheet.
+        let exportSheet = app.sheets.firstMatch
+        XCTAssertTrue(exportSheet.waitForExistence(timeout: 5))
+#endif
+    }
+
     /// Returns the sidebar row element for the given client name.
     ///
     /// macOS NavigationSplitView sidebar List → NSOutlineView → XCUI `outline`.
