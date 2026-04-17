@@ -87,16 +87,16 @@ struct ClientDetailView: View {
         }
         .onAppear {
             refreshAll()
-            AnalyticsService.track("client_detail_viewed")
+            AnalyticsService.track("client_detail_viewed", account: account)
         }
         .onChange(of: attentionResult == nil) { _, isNil in
             if !isNil {
-                AnalyticsService.track("score_breakdown_viewed")
+                AnalyticsService.track("score_breakdown_viewed", account: account)
             }
         }
         .onChange(of: weeklyCompleteness.isEmpty) { _, isEmpty in
             if !isEmpty {
-                AnalyticsService.track("completeness_viewed")
+                AnalyticsService.track("completeness_viewed", account: account)
             }
         }
     }

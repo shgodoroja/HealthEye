@@ -136,7 +136,7 @@ struct ReportPreviewView: View {
                 )
                 modelContext.insert(report)
                 try? modelContext.save()
-                AnalyticsService.track("report_exported")
+                AnalyticsService.track("report_exported", account: account)
                 state = .exported(url.lastPathComponent)
             case .failure(let error):
                 state = .error("Failed to save: \(error.localizedDescription)")

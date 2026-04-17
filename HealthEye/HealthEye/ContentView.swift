@@ -61,6 +61,7 @@ struct ContentView: View {
         NavigationSplitView {
             ClientListView(
                 clients: filteredAndSortedClients,
+                account: account,
                 selectedClient: $selectedClient,
                 selectedFilter: $selectedFilter,
                 clientScores: clientScores,
@@ -301,7 +302,7 @@ struct ContentView: View {
             }
         }
 
-        AnalyticsService.track("bulk_reports_exported", properties: [
+        AnalyticsService.track("bulk_reports_exported", account: account, extra: [
             "count": String(savedNames.count),
         ])
         bulkReportResult = BulkReportResult(
@@ -326,7 +327,7 @@ struct ContentView: View {
         if !urls.isEmpty {
             bulkShareURLs = urls
             showingBulkShare = true
-            AnalyticsService.track("bulk_reports_exported", properties: [
+            AnalyticsService.track("bulk_reports_exported", account: account, extra: [
                 "count": String(urls.count),
             ])
         }

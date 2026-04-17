@@ -3,6 +3,7 @@ import SwiftData
 
 struct ClientListView: View {
     let clients: [Client]
+    let account: CoachAccount?
     @Binding var selectedClient: Client?
     @Binding var selectedFilter: AttentionBucket?
     let clientScores: [UUID: Double]
@@ -48,7 +49,7 @@ struct ClientListView: View {
         }
         .navigationTitle("Clients")
         .onAppear {
-            AnalyticsService.track("dashboard_viewed", properties: [
+            AnalyticsService.track("dashboard_viewed", account: account, extra: [
                 "client_count": String(clients.count),
             ])
         }

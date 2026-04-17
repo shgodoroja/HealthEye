@@ -85,12 +85,12 @@ struct PaywallView: View {
         }
         .frame(minWidth: 550, minHeight: 450)
         .onAppear {
-            AnalyticsService.track("paywall_viewed")
+            AnalyticsService.track("paywall_viewed", account: account)
         }
         .onChange(of: storeManager.currentEntitlement) { _, newEntitlement in
             if newEntitlement != .trial {
                 TrialManager.selectPlan(newEntitlement, account: account)
-                AnalyticsService.track("plan_selected", properties: ["plan": newEntitlement.rawValue])
+                AnalyticsService.track("plan_selected", account: account, extra: ["plan": newEntitlement.rawValue])
                 dismiss()
             }
         }

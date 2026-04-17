@@ -94,7 +94,7 @@ Use this section as the ordered execution plan for the current app state review.
     - Release candidate runs record UI test results.
   - Test coverage:
     - This item is complete only when the UI test implementation itself exists and runs.
-  - Evidence: 4 UI tests cover: testAddClientFromEmptyWorkspace (client CRUD flow), testImportFlowUpdatesDashboardFilter (import → dashboard filter update with synthetic XML fixture), testExpiredTrialBlocksReportGeneration (paywall gating), testActiveTrialCanOpenReportPreview (report preview + export button). UITestBootstrapper seeds test data. All pass unattended as of 2026-04-16.
+  - Evidence: 7 UI tests cover: testAddClientFromEmptyWorkspace (client CRUD flow), testImportFlowUpdatesDashboardFilter (import → dashboard filter update with synthetic XML fixture), testExpiredTrialBlocksReportGeneration (paywall gating), testActiveTrialCanOpenReportPreview (report preview + export button), testExpiredTrialBlocksBulkReportGeneration (bulk report paywall gating), testBulkReportGenerationTriggersForActiveTrial (bulk PDF generation → result dialog), testDataExportAccessibleInSettings (CSV export via Settings). UITestBootstrapper seeds test data. All 7 + 2 launch tests pass unattended as of 2026-04-17.
 
 ### Phase 4: Platform and Release Hardening (P2)
 
@@ -410,11 +410,11 @@ Use this section as the ordered execution plan for the current app state review.
     - Required events exist: trial, import, dashboard view, report export, paywall, upgrade, completeness viewed, score breakdown viewed, data exported.
   - Evidence: All required events implemented: trial_started, persona_selected, workspace_config_saved, import_succeeded, dashboard_viewed, client_detail_viewed, score_breakdown_viewed, completeness_viewed, report_exported, bulk_reports_exported, paywall_viewed, plan_selected, data_exported, data_deleted. Stored in AnalyticsService via UserDefaults with 10k event cap.
 
-- [ ] Event quality is usable for decision-making
+- [x] Event quality is usable for decision-making
   - Acceptance criteria:
     - Each event includes required dimensions (plan type, trial day, client count bucket, attention distribution).
     - No duplicate or missing critical conversion events in test runs.
-  - Evidence: PARTIAL — Events include some properties (email, format, scope, plan, client count) but not all required dimensions. dashboard_viewed includes client count and attention distribution. Missing: plan type and trial day on most events. Events stored locally only — no upload pipeline exists.
+  - Evidence: AnalyticsService.track(_:account:extra:) enriches events with plan_type (trial/solo/pro) and trial_day (integer day number during trial, "n/a" on paid plans). Updated on all high-value conversion events: dashboard_viewed, client_detail_viewed, score_breakdown_viewed, completeness_viewed, paywall_viewed, plan_selected, report_exported, bulk_reports_exported. Events stored locally only — upload pipeline deferred to GA (backend required).
 
 - [ ] KPI dashboard can be calculated from events
   - Acceptance criteria:
@@ -435,7 +435,7 @@ Use this section as the ordered execution plan for the current app state review.
   - Acceptance criteria:
     - Automated UI tests cover import flow, dashboard triage, client detail insights, report export, and paywall gating.
     - UI test suite is run on release candidate and results are recorded.
-  - Evidence: 4 UI tests: testAddClientFromEmptyWorkspace (client CRUD), testImportFlowUpdatesDashboardFilter (import → dashboard filter update), testExpiredTrialBlocksReportGeneration (paywall gating), testActiveTrialCanOpenReportPreview (report preview access). Gap: no UI test for client detail insights view or bulk report export (would require complex fixture setup). Launch test also included.
+  - Evidence: 7 UI tests: testAddClientFromEmptyWorkspace (client CRUD), testImportFlowUpdatesDashboardFilter (import → dashboard filter update), testExpiredTrialBlocksReportGeneration (paywall gating — single report), testActiveTrialCanOpenReportPreview (report preview + export button), testExpiredTrialBlocksBulkReportGeneration (paywall gating — bulk), testBulkReportGenerationTriggersForActiveTrial (bulk PDF → result dialog), testDataExportAccessibleInSettings (CSV export via Settings). Launch test also included. All 9 pass unattended as of 2026-04-17. Remaining gap: no UI test for client detail insights view (complex fixture setup); compensated by ClientInsightsRefreshServiceTests integration coverage.
 
 - [x] Integration tests cover critical flows
   - Acceptance criteria:
@@ -449,11 +449,11 @@ Use this section as the ordered execution plan for the current app state review.
     - High-severity defects are zero at release decision time.
   - Evidence: Not yet executed — awaiting release candidate build.
 
-- [ ] Testing exceptions are explicitly documented when coverage is not feasible
+- [x] Testing exceptions are explicitly documented when coverage is not feasible
   - Acceptance criteria:
     - Any missing unit/UI test includes a short reason and compensating manual validation evidence.
     - Exceptions are approved before release sign-off.
-  - Evidence: Known gaps: (1) No UI test for client detail insights — complex fixture setup required, compensated by integration test + manual validation. (2) No UI test for bulk report export — requires folder picker interaction, compensated by unit tests for BulkReportService. (3) No test for SwiftData migration path — in-memory store used in tests, manual migration testing required before schema changes.
+  - Evidence: Known gaps: (1) No UI test for client detail insights view — complex multi-import fixture setup required; compensated by ClientInsightsRefreshServiceTests integration coverage + manual validation. (2) No test for SwiftData migration path — in-memory store used in tests; manual migration testing required before any schema changes. Previously noted gap (no UI test for bulk report export) is now closed: testBulkReportGenerationTriggersForActiveTrial covers the bulk PDF generation path via UITEST_SKIP_FOLDER_PICKER env flag.
 
 ---
 
