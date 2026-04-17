@@ -194,10 +194,23 @@ struct ContentView: View {
         var scores: [UUID: Double] = [:]
         let currentWeekStart = CompletenessCalculator.mondayOfWeek(containing: Date())
         for client in clients {
-            // Read persisted score to maintain single source of truth (FR-014).
-            // Scores are computed and persisted during import via ClientInsightsRefreshService.
+            // Prefer persisted score written by ClientInsightsRefreshService after
+            // every import — this ensures dashboard and detail view always show the
+            // same value (FR-014 score stability).
             if let persisted = client.attentionScores.first(where: { $0.weekStart == currentWeekStart }) {
                 scores[client.id] = persisted.scoreTotal
+            } else {
+                // No persisted score yet (client just added, no import completed) —
+                // live-compute so the client still appears in the ranked list.
+                let trend = BaselineEngine.computeTrend(metrics: client.metrics)
+                let completeness = CompletenessCalculator.score(
+                    for: currentWeekStart,
+                    metrics: client.metrics
+                )
+                scores[client.id] = AttentionScoreCalculator.calculate(
+                    trend: trend,
+                    completenessScore: completeness
+                ).total
             }
         }
         clientScores = scores
