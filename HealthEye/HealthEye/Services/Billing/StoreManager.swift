@@ -26,9 +26,12 @@ final class StoreManager {
 
     // MARK: - Transaction Listener
 
-    nonisolated(unsafe) private var updateListenerTask: Task<Void, Never>?
+    @ObservationIgnored private var updateListenerTask: Task<Void, Never>?
 
     init() {
+        let isTestRun = ProcessInfo.processInfo.arguments.contains("-ui-testing")
+            || (NSClassFromString("XCTestCase") != nil)
+        guard !isTestRun else { return }
         updateListenerTask = listenForTransactions()
         Task { await loadProducts() }
     }

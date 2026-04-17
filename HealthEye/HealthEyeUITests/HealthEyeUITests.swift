@@ -10,7 +10,10 @@ final class HealthEyeUITests: XCTestCase {
         let app = launchApp()
 
         let addButton = app.buttons["empty-add-client"]
-        XCTAssertTrue(addButton.waitForExistence(timeout: 5))
+        if !addButton.waitForExistence(timeout: 5) {
+            print("DEBUG HIERARCHY: \(app.debugDescription)")
+        }
+        XCTAssertTrue(addButton.exists)
         addButton.tap()
 
         let nameField = app.textFields["client-name-field"]
@@ -129,9 +132,21 @@ final class HealthEyeUITests: XCTestCase {
 
     private func launchApp(environment: [String: String] = [:]) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-ui-testing"]
+        app.launchArguments = [
+            "-ui-testing",
+            "-ApplePersistenceIgnoreState",
+            "YES",
+        ]
         app.launchEnvironment = environment
         app.launch()
+        // Ensure the app window is front-most; xcodebuild CLI launches may
+        // not activate the window automatically on macOS.
+        app.activate()
+        // If macOS restored the app with no windows, open a fresh main window.
+        if !app.windows.firstMatch.waitForExistence(timeout: 10) {
+            app.typeKey("n", modifierFlags: .command)
+            _ = app.windows.firstMatch.waitForExistence(timeout: 5)
+        }
         return app
     }
 

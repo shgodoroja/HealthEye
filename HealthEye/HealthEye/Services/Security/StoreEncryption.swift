@@ -46,6 +46,7 @@ struct StoreEncryption {
     /// Checks whether FileVault (full-disk encryption) is enabled.
     /// Returns `true` if enabled, `false` if not or if status cannot be determined.
     static var isFileVaultEnabled: Bool {
+        #if os(macOS)
         let task = Process()
         task.executableURL = URL(fileURLWithPath: "/usr/bin/fdesetup")
         task.arguments = ["isactive"]
@@ -60,6 +61,10 @@ struct StoreEncryption {
         } catch {
             return false
         }
+        #else
+        // iOS/iPadOS rely on system data protection classes, not FileVault.
+        return true
+        #endif
     }
 
     /// Logs a warning if FileVault is not enabled. Called once at app launch.

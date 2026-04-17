@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 import StoreKit
 
 struct PaywallView: View {
@@ -70,7 +71,12 @@ struct PaywallView: View {
                     Button("Restore Purchases") {
                         Task { await storeManager.restorePurchases() }
                     }
+                    #if os(macOS)
                     .buttonStyle(.link)
+                    #else
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.tint)
+                    #endif
                     .font(.callout)
                     .padding(.bottom, 8)
                 }

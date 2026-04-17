@@ -53,7 +53,18 @@ struct HealthEyeApp: App {
         WindowGroup {
             ContentView()
                 .environment(storeManager)
+                .frame(minWidth: 800, minHeight: 500)
                 .onAppear {
+                    // Ensure the main window is visible, especially during UI tests
+                    // launched from xcodebuild CLI.
+                    #if os(macOS)
+                    DispatchQueue.main.async {
+                        NSApplication.shared.activate(ignoringOtherApps: true)
+                        for window in NSApplication.shared.windows {
+                            window.makeKeyAndOrderFront(nil)
+                        }
+                    }
+                    #endif
                     let context = sharedModelContainer.mainContext
                     if UITestBootstrapper.isEnabled {
                         UITestBootstrapper.bootstrap(context: context)
