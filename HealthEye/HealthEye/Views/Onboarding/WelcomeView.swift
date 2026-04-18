@@ -20,7 +20,7 @@ struct WelcomeView: View {
                     .font(.system(size: 56))
                     .foregroundStyle(.tint)
 
-                Text("Welcome to HealthEye")
+                Text("Welcome to Arclens")
                     .font(.largeTitle)
                     .fontWeight(.bold)
 

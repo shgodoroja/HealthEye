@@ -203,7 +203,7 @@ struct SettingsView: View {
 
     private var aboutSection: some View {
         Section("About") {
-            Text("HealthEye is designed for coaching insights only. It does not provide medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional for medical decisions.")
+            Text("Arclens is designed for coaching insights only. It does not provide medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional for medical decisions.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -230,7 +230,7 @@ struct SettingsView: View {
         exportError = nil
         do {
             let data = try DataExportService.exportAllClients(activeClients, format: format)
-            scheduleExport(data: data, fileName: "healtheye_export.\(ext)", ext: ext)
+            scheduleExport(data: data, fileName: "arclens_export.\(ext)", ext: ext)
             AnalyticsService.track("data_exported", properties: ["format": ext, "scope": "all"])
         } catch {
             exportError = error.localizedDescription

@@ -318,7 +318,7 @@ struct ContentView: View {
 #else
         // iPadOS: write PDFs to a temp directory and present the system share sheet.
         let tempDir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("HealthEyeBulk_\(UUID().uuidString)")
+            .appendingPathComponent("ArclensBulk_\(UUID().uuidString)")
         try? FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
 
         var urls: [URL] = []

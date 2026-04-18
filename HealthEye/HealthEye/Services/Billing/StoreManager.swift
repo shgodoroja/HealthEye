@@ -20,8 +20,8 @@ final class StoreManager {
 
     // MARK: - Product IDs
 
-    static let soloProductID = "sg.godoroja.HealthEye.solo.monthly"
-    static let proProductID  = "sg.godoroja.HealthEye.pro.monthly"
+    static let soloProductID = "sg.godoroja.Arclens.solo.monthly"
+    static let proProductID  = "sg.godoroja.Arclens.pro.monthly"
     private static let allProductIDs: Set<String> = [soloProductID, proProductID]
 
     // MARK: - Transaction Listener

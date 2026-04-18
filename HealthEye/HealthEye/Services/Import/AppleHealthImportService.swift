@@ -66,15 +66,15 @@ final class AppleHealthImportService {
             let parsedData = try parser.parse(fileURL: xmlURL)
 
             // Clean up extracted temp directory if it was a zip
-            if xmlURL != fileURL, xmlURL.path.contains("HealthEyeImport_") {
+            if xmlURL != fileURL, xmlURL.path.contains("ArclensImport_") {
                 let tempDir = xmlURL.deletingLastPathComponent()
-                // Walk up to the HealthEyeImport_ directory
+                // Walk up to the ArclensImport_ directory
                 var dir = tempDir
-                while !dir.lastPathComponent.hasPrefix("HealthEyeImport_"),
+                while !dir.lastPathComponent.hasPrefix("ArclensImport_"),
                       dir.pathComponents.count > 1 {
                     dir = dir.deletingLastPathComponent()
                 }
-                if dir.lastPathComponent.hasPrefix("HealthEyeImport_") {
+                if dir.lastPathComponent.hasPrefix("ArclensImport_") {
                     try? FileManager.default.removeItem(at: dir)
                 }
             }

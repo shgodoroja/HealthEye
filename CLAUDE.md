@@ -2,12 +2,12 @@
 
 ## Project overview
 
-**HealthEye** (repo: WatchHealthDataReader) is a macOS SwiftUI app that turns Apple Watch / Apple Health exports into actionable weekly coaching insights and one-click PDF reports. The primary users are independent coaches (fitness, wellness, nutrition) managing 20-100 clients.
+**Arclens** (repo: WatchHealthDataReader) is a macOS SwiftUI app that turns Apple Watch / Apple Health exports into actionable weekly coaching insights and one-click PDF reports. The primary users are independent coaches (fitness, wellness, nutrition) managing 20-100 clients.
 
 ## Repository layout
 
 ```
-HealthEye/                        # Xcode project root
+HealthEye/                        # Xcode project root (Arclens app target)
   HealthEye.xcodeproj/            # Xcode project file
   HealthEye/                      # App source (SwiftUI)
   HealthEyeTests/                 # Unit tests

@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Project: WatchHealthDataReader
+Project: Arclens (repo: WatchHealthDataReader)
 Path: /Users/stefangodoroja/Documents/Projects/WatchHealthDataReader
 
 ## Purpose

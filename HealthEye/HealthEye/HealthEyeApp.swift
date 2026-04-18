@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 @main
-struct HealthEyeApp: App {
+struct ArclensApp: App {
     @State private var storeManager = StoreManager()
 
     var sharedModelContainer: ModelContainer = {

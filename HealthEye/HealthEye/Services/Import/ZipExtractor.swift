@@ -33,7 +33,7 @@ struct ZipExtractor: Sendable {
 #if os(macOS)
         // macOS: delegate to /usr/bin/ditto which handles Apple Health's zip format.
         let tempDir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("HealthEyeImport_\(UUID().uuidString)")
+            .appendingPathComponent("ArclensImport_\(UUID().uuidString)")
 
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
 
@@ -67,7 +67,7 @@ struct ZipExtractor: Sendable {
         // library. Direct the user to share the export.xml file from inside the ZIP.
         throw ImportError.invalidFile(
             "ZIP archives are not supported on iPad. "
-            + "Open the ZIP in Files, then share the export.xml file directly into HealthEye."
+            + "Open the ZIP in Files, then share the export.xml file directly into Arclens."
         )
 #endif
     }

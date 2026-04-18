@@ -67,7 +67,7 @@
       "localizations" : [
 
       ],
-      "name" : "HealthEye Plans",
+      "name" : "Arclens Plans",
       "subscriptions" : [
         {
           "adHocOffers" : [
@@ -88,7 +88,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "sg.godoroja.HealthEye.pro.monthly",
+          "productID" : "sg.godoroja.Arclens.pro.monthly",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Pro Monthly",
           "subscriptionGroupID" : "healtheyeplans",
@@ -113,7 +113,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "sg.godoroja.HealthEye.solo.monthly",
+          "productID" : "sg.godoroja.Arclens.solo.monthly",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Solo Monthly",
           "subscriptionGroupID" : "healtheyeplans",

@@ -1,6 +1,6 @@
-# WatchHealthDataReader MVP Quality and Completeness Checklist
+# Arclens MVP Quality and Completeness Checklist
 
-Last updated: 2026-04-16
+Last updated: 2026-04-18
 Reference PRD: `/Users/stefangodoroja/Documents/Projects/WatchHealthDataReader/PRD.md`
 
 How to use:
@@ -13,6 +13,70 @@ How to use:
 ## 0) Current Remediation Sequence
 
 Use this section as the ordered execution plan for the current app state review. Do not mark later phases complete while an earlier blocking phase is still open.
+
+### Phase 0: StoreKit Readiness (P0/P1) - Added 2026-04-18
+
+- [ ] 14-day trial is implemented as a real subscription introductory offer (P0)
+  - Acceptance criteria:
+    - App Store Connect subscriptions `sg.godoroja.Arclens.solo.monthly` and `sg.godoroja.Arclens.pro.monthly` include a 14-day introductory free trial in the same subscription group.
+    - Local StoreKit config mirrors intro-offer behavior for test determinism.
+    - Trial copy in onboarding/paywall matches actual StoreKit offer behavior.
+  - Test coverage:
+    - StoreKitTest scenario verifies intro offer is visible/eligible for first-time purchase.
+    - UI test covers paywall text/flow for trial-eligible account.
+  - Evidence:
+
+- [ ] Entitlement sync is persisted deterministically after StoreKit updates (P0)
+  - Acceptance criteria:
+    - On app launch, purchase success, restore, and transaction update, account `planType` is synced from StoreKit entitlement and saved to SwiftData.
+    - No flow relies only on in-memory entitlement state for gating.
+    - Entitlement downgrade/revocation back to trial is persisted and reflected immediately in gating.
+  - Test coverage:
+    - Unit tests cover sync behavior for upgrade and downgrade paths.
+    - UI test validates expired/lost entitlement blocks premium actions.
+  - Evidence:
+
+- [ ] Subscription lifecycle states are handled in coach-facing UX (P1)
+  - Acceptance criteria:
+    - Billing retry/grace/expired/revoked states show actionable messaging in paywall/settings.
+    - Premium feature gating aligns with the verified StoreKit state in each lifecycle condition.
+  - Test coverage:
+    - StoreKitTest scenarios cover at least active, expired, and revoked subscription outcomes.
+  - Evidence:
+
+- [ ] In-app subscription management entry point is available (P1)
+  - Acceptance criteria:
+    - A visible "Manage Subscription" action exists in paywall and/or settings.
+    - Action opens the system subscription management flow successfully.
+  - Test coverage:
+    - UI test confirms presence and tappability of the manage action.
+    - Manual validation recorded for system sheet/open action (UI automation limitation acceptable if documented).
+  - Evidence:
+
+- [ ] StoreKit regression coverage is expanded beyond constants/state smoke tests (P1)
+  - Acceptance criteria:
+    - Automated tests cover purchase success, cancellation, pending, restore, and entitlement refresh.
+    - Billing tests execute reliably in CI/local release pipeline.
+  - Test coverage:
+    - New unit/integration tests added under `HealthEyeTests/Services` and pass.
+    - Existing paywall gating UI tests continue to pass on macOS and iPad.
+  - Evidence:
+
+- [ ] App Store submission billing prerequisites are complete (P1)
+  - Acceptance criteria:
+    - Subscription metadata/localization/pricing/review assets are complete in App Store Connect.
+    - Production-signed build fetches products and displays non-fallback prices.
+  - Test coverage:
+    - Manual production/sandbox validation log recorded with date, build, storefront, and outcomes.
+  - Evidence:
+
+- [ ] Privacy manifest is present for required-reason API usage (App Store blocker) (P1)
+  - Acceptance criteria:
+    - `PrivacyInfo.xcprivacy` is added to app target and declares required reasons for APIs used (including UserDefaults access).
+    - Archive validation/upload no longer reports missing required-reason declarations.
+  - Test coverage:
+    - Build/archive validation step is documented in release checklist.
+  - Evidence:
 
 ### Phase 1: Import -> Derived Data -> Dashboard Coherence (P0)
 
@@ -128,7 +192,7 @@ Use this section as the ordered execution plan for the current app state review.
   - Acceptance criteria:
     - Product supports all PRD goals in section 2.
     - UI/report copy does not imply diagnosis or medical claims.
-  - Evidence: SettingsView aboutSection contains non-medical disclaimer: "HealthEye is designed for coaching insights only. It does not provide medical advice, diagnosis, or treatment." Report footer includes "Not medical advice — for coaching insights only". All UI copy uses "coaching insights" framing.
+  - Evidence: SettingsView aboutSection contains non-medical disclaimer: "Arclens is designed for coaching insights only. It does not provide medical advice, diagnosis, or treatment." Report footer includes "Not medical advice — for coaching insights only". All UI copy uses "coaching insights" framing.
 
 - [x] Must-feature set (P0) is fully covered
   - Acceptance criteria:
@@ -362,7 +426,7 @@ Use this section as the ordered execution plan for the current app state review.
 - [x] Data-at-rest protection is implemented
   - Acceptance criteria:
     - Local database encryption strategy is documented and active.
-  - Evidence: StoreEncryption service (Services/Security/StoreEncryption.swift): stores SQLite in Application Support/HealthEye/ with NSFileProtectionComplete attribute. HealthEyeApp uses StoreEncryption.prepareStoreURL() for production builds. verifyEncryptionEnvironment() checks FileVault via fdesetup and logs warning if disabled. Test builds use in-memory store.
+  - Evidence: StoreEncryption service (Services/Security/StoreEncryption.swift): stores SQLite in Application Support/Arclens/ with NSFileProtectionComplete attribute. ArclensApp uses StoreEncryption.prepareStoreURL() for production builds. verifyEncryptionEnvironment() checks FileVault via fdesetup and logs warning if disabled. Test builds use in-memory store.
 
 - [x] Data deletion controls are complete
   - Acceptance criteria:
@@ -379,7 +443,7 @@ Use this section as the ordered execution plan for the current app state review.
   - Acceptance criteria:
     - Disclaimer appears in app settings and relevant report context.
     - Product language avoids diagnosis wording.
-  - Evidence: SettingsView aboutSection: "HealthEye is designed for coaching insights only. It does not provide medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional for medical decisions." PDFReportGenerator footer: "Generated by HealthEye • Confidential • Not medical advice — for coaching insights only". All UI copy uses "coaching insights" framing, no diagnosis language.
+  - Evidence: SettingsView aboutSection: "Arclens is designed for coaching insights only. It does not provide medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional for medical decisions." PDFReportGenerator footer: "Generated by Arclens • Confidential • Not medical advice — for coaching insights only". All UI copy uses "coaching insights" framing, no diagnosis language.
 
 ---
 

@@ -16,7 +16,7 @@ struct StoreEncryption {
             for: .applicationSupportDirectory,
             in: .userDomainMask
         ).first!
-        return appSupport.appendingPathComponent("HealthEye", isDirectory: true)
+        return appSupport.appendingPathComponent("Arclens", isDirectory: true)
     }
 
     /// Returns a store URL inside the encrypted directory, creating the
@@ -31,7 +31,7 @@ struct StoreEncryption {
 
         applyFileProtection(to: directory)
 
-        return directory.appendingPathComponent("HealthEye.store")
+        return directory.appendingPathComponent("Arclens.store")
     }
 
     /// Applies `NSFileProtectionComplete` to the given URL.
@@ -71,7 +71,7 @@ struct StoreEncryption {
     static func verifyEncryptionEnvironment() {
         #if !DEBUG
         if !isFileVaultEnabled {
-            NSLog("[HealthEye] WARNING: FileVault is not enabled. Health data at rest is not fully encrypted. Enable FileVault in System Settings > Privacy & Security.")
+            NSLog("[Arclens] WARNING: FileVault is not enabled. Health data at rest is not fully encrypted. Enable FileVault in System Settings > Privacy & Security.")
         }
         #endif
     }

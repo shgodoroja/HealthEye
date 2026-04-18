@@ -21,11 +21,11 @@ struct StoreManagerTests {
     // MARK: - Product ID Constants
 
     @Test func soloProductIDFollowsConvention() {
-        #expect(StoreManager.soloProductID == "sg.godoroja.HealthEye.solo.monthly")
+        #expect(StoreManager.soloProductID == "sg.godoroja.Arclens.solo.monthly")
     }
 
     @Test func proProductIDFollowsConvention() {
-        #expect(StoreManager.proProductID == "sg.godoroja.HealthEye.pro.monthly")
+        #expect(StoreManager.proProductID == "sg.godoroja.Arclens.pro.monthly")
     }
 
     // MARK: - Sync Entitlement via TrialManager

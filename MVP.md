@@ -1,4 +1,4 @@
-# WatchHealthDataReader MVP Research and Plan
+# Arclens MVP Research and Plan
 
 Last updated: 2026-02-20
 
