@@ -1,0 +1,12 @@
+{
+  "name": "HealthEye",
+  "short_name": "HealthEye",
+  "description": "Apple Health analysis for coaches on Mac. Spot clients who need attention and generate weekly reports in minutes.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b1f1c",
+  "theme_color": "#0e8a77",
+  "icons": [
+    { "src": "/assets/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

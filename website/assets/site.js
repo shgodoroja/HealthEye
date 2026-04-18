@@ -11,6 +11,7 @@
     { href: `${root}sample-report/`, label: "Sample Report", key: "sample-report" },
     { href: `${root}pricing/`, label: "Pricing", key: "pricing" },
     { href: `${root}guides/apple-health-export-to-csv/`, label: "Guides", key: "guides" },
+    { href: `${root}faq/`, label: "FAQ", key: "faq" },
     { href: `${root}download/`, label: "Download", key: "download" }
   ];
 
@@ -77,9 +78,9 @@
             <div>
               <h4>Support</h4>
               <a href="${root}pricing/">Pricing</a>
-              <a href="${root}download/">Install Guide</a>
-              <a href="${root}privacy/">Data Controls</a>
-              <a href="mailto:hello@healtheye.app">Contact</a>
+              <a href="${root}faq/">FAQ</a>
+              <a href="${root}release-notes/">Release Notes</a>
+              <a href="${root}contact/">Contact</a>
             </div>
           </div>
           <div class="footer-note">

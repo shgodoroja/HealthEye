@@ -9,7 +9,10 @@
       "Bash(ruby --version:*)",
       "Bash(gem list:*)",
       "Bash(ruby:*)",
-      "Bash(be preserved\"\\):*)"
+      "Bash(be preserved\"\\):*)",
+      "Read(//Users/stefangodoroja/Library/**)",
+      "Bash(codesign -d --entitlements - ~/Library/Developer/Xcode/DerivedData/HealthEye-fjicvtytrpagorhdchnahuphoznx/Build/Products/Debug/HealthEye.app)",
+      "Bash(xcrun xcresulttool:*)"
     ]
   }
 }

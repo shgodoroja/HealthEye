@@ -35,16 +35,27 @@
         "@type": "SoftwareApplication",
         "@id": "https://healtheye.app/#software",
         "name": "HealthEye",
-        "operatingSystem": "macOS",
+        "operatingSystem": "macOS, iPadOS",
         "applicationCategory": "HealthApplication",
         "description": "Coach-first Mac app for analyzing Apple Health exports, ranking clients by attention, and generating weekly coaching reports.",
         "url": "https://healtheye.app/",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD",
-          "availability": "https://schema.org/InStock"
-        }
+        "image": "https://healtheye.app/assets/og-image.svg",
+        "offers": [
+          { "@type": "Offer", "name": "14-day trial", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock" },
+          { "@type": "Offer", "name": "Solo Coach",  "price": "39", "priceCurrency": "USD", "availability": "https://schema.org/InStock" },
+          { "@type": "Offer", "name": "Pro Coach",   "price": "79", "priceCurrency": "USD", "availability": "https://schema.org/InStock" }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://healtheye.app/#faq",
+        "mainEntity": [
+          { "@type": "Question", "name": "Does this work with Apple Health exports from iPhone?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. HealthEye is built for Apple Health export files from iPhone, including zip exports that contain export.xml. The app guides the import process on Mac." } },
+          { "@type": "Question", "name": "Do I need to be technical to use it?", "acceptedAnswer": { "@type": "Answer", "text": "No. The workflow is designed for coaches, not developers. HealthEye guides import, shows data completeness, and explains score changes in plain language." } },
+          { "@type": "Question", "name": "Is this a medical app?", "acceptedAnswer": { "@type": "Answer", "text": "No. HealthEye provides wellness and coaching insights only. It is not a medical device and does not provide diagnosis or medical treatment advice." } },
+          { "@type": "Question", "name": "Can I export or delete client data?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Data ownership controls are included so you can export machine-readable data and remove client records when needed." } },
+          { "@type": "Question", "name": "Does it require an internet connection?", "acceptedAnswer": { "@type": "Answer", "text": "Core workflows are designed to work locally on Mac, including import, analysis, and report generation." } }
+        ]
       }
     ]
   }
@@ -54,6 +65,16 @@
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>
   <script defer src="/_vercel/insights/script.js"></script>
+  <!-- site-seo-injected -->
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="alternate icon" href="/assets/favicon.svg">
+  <link rel="apple-touch-icon" href="/assets/favicon.svg">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta property="og:image" content="https://healtheye.app/assets/og-image.svg">
+  <meta property="og:image:alt" content="HealthEye — Apple Health analysis for coaches on Mac">
+  <meta name="twitter:title" content="HealthEye for Coaches | Apple Watch Health Data Analysis on Mac">
+  <meta name="twitter:description" content="Analyze Apple Watch and Apple Health exports on Mac, spot clients who need attention, and generate weekly coaching reports in minutes. Privacy-first and explainable.">
+  <meta name="twitter:image" content="https://healtheye.app/assets/og-image.svg">
 </head>
 <body data-page="home" data-page-title="HealthEye Home" data-sticky-cta-label="Download for Mac" data-sticky-cta-href="/download/">
   <div class="page-shell">

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="HealthEye — Apple Health analysis for coaches">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#082f2a"/>
+    </linearGradient>
+    <linearGradient id="acc" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5eead4"/>
+      <stop offset="1" stop-color="#2dd4bf"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- Soft orbs -->
+  <circle cx="1030" cy="120" r="220" fill="#5eead4" opacity=".08"/>
+  <circle cx="120" cy="540" r="260" fill="#5eead4" opacity=".06"/>
+  <!-- Brand lockup -->
+  <g transform="translate(80,100)">
+    <rect width="68" height="68" rx="16" fill="url(#acc)"/>
+    <path d="M34 22c-9.5 0-16 9.2-18 14 2 4.8 8.5 14 18 14s16-9.2 18-14c-2-4.8-8.5-14-18-14zm0 22.5a8.5 8.5 0 1 1 0-17 8.5 8.5 0 0 1 0 17z" fill="#082f2a" fill-opacity=".9"/>
+    <circle cx="34" cy="36" r="4.2" fill="#5eead4"/>
+    <text x="90" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="22" fill="#b2f5ea" letter-spacing="3">HEALTHEYE</text>
+    <text x="90" y="58" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="18" fill="#5eead4" opacity=".8">Apple Health analysis for coaches · Mac</text>
+  </g>
+  <!-- Headline -->
+  <g transform="translate(80,240)" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif">
+    <text font-size="62" font-weight="700" y="0">Spot the clients who</text>
+    <text font-size="62" font-weight="700" y="78">need attention this week.</text>
+    <text font-size="28" y="150" fill="#b2f5ea" opacity=".95">Apple Health export → weekly triage dashboard → one-click PDF report.</text>
+  </g>
+  <!-- Badge pills -->
+  <g transform="translate(80,470)" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="22" fill="#082f2a">
+    <g>
+      <rect width="200" height="56" rx="28" fill="#5eead4"/>
+      <text x="100" y="36" text-anchor="middle" font-weight="600">Local-first</text>
+    </g>
+    <g transform="translate(220,0)">
+      <rect width="220" height="56" rx="28" fill="#5eead4"/>
+      <text x="110" y="36" text-anchor="middle" font-weight="600">Explainable</text>
+    </g>
+    <g transform="translate(460,0)">
+      <rect width="260" height="56" rx="28" fill="#5eead4"/>
+      <text x="130" y="36" text-anchor="middle" font-weight="600">Coach workflow</text>
+    </g>
+  </g>
+  <!-- Corner URL -->
+  <text x="1120" y="600" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="22" fill="#5eead4" opacity=".9">healtheye.app</text>
+</svg>

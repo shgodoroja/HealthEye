@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en" data-site-root="/">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Weekly Client Recovery Report Use Case | HealthEye for Coaches</title>
+  <meta name="description" content="See how coaches use HealthEye on Mac to turn Apple Health exports into a weekly client recovery report with sleep, HRV, and workout load in a repeatable workflow.">
+  <link rel="canonical" href="https://healtheye.app/use-cases/weekly-client-recovery-report/">
+  <meta name="theme-color" content="#0e8a77">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script src="/assets/site.js" defer></script>
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="apple-touch-icon" href="/assets/favicon.svg">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Weekly Client Recovery Report — HealthEye Use Case">
+  <meta property="og:description" content="The repeatable weekly recovery check-in workflow using Apple Health exports on Mac.">
+  <meta property="og:url" content="https://healtheye.app/use-cases/weekly-client-recovery-report/">
+  <meta property="og:site_name" content="HealthEye">
+  <meta property="og:image" content="https://healtheye.app/assets/og-image.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Weekly Client Recovery Report — HealthEye">
+  <meta name="twitter:description" content="The repeatable weekly recovery check-in workflow using Apple Health exports on Mac.">
+  <meta name="twitter:image" content="https://healtheye.app/assets/og-image.svg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "Produce a weekly client recovery report with HealthEye",
+    "description": "Repeatable weekly workflow for independent coaches using Apple Health exports on Mac.",
+    "step": [
+      { "@type": "HowToStep", "name": "Collect Apple Health export", "text": "Client exports Apple Health data from iPhone and sends the archive to the coach." },
+      { "@type": "HowToStep", "name": "Import on Mac", "text": "Coach imports the Apple Health export into HealthEye with the guided import flow." },
+      { "@type": "HowToStep", "name": "Verify completeness", "text": "HealthEye shows which metrics are present for the week so gaps are visible before interpretation." },
+      { "@type": "HowToStep", "name": "Review attention score", "text": "The explainable score highlights the top driver and associated alert rules." },
+      { "@type": "HowToStep", "name": "Generate report and message", "text": "Coach exports a PDF report and copies the suggested coach-ready message." }
+    ]
+  }
+  </script>
+</head>
+<body data-page="use-cases" data-page-title="Weekly Client Recovery Report" data-sticky-cta-label="Download for Mac" data-sticky-cta-href="/download/">
+  <div class="page-shell">
+    <div data-site-header></div>
+    <main class="page-main">
+      <section class="guide-hero">
+        <div class="container">
+          <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <a href="/">Home</a> <span>/</span>
+            <a href="/use-cases/weekly-client-recovery-report/">Use Cases</a> <span>/</span>
+            <span>Weekly Client Recovery Report</span>
+          </nav>
+          <div class="card reveal">
+            <div class="eyebrow">Use Case</div>
+            <h1>Weekly client recovery report in under five minutes per client</h1>
+            <p class="lead">How an independent performance coach runs a repeatable recovery check-in using HealthEye on Mac — from Apple Health export to client-ready PDF.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <h2>The weekly loop</h2>
+          <ol>
+            <li><strong>Collect.</strong> Each client exports Apple Health from iPhone on Sunday evening and shares the archive.</li>
+            <li><strong>Import.</strong> The coach imports on Mac using guided import. Metric completeness is shown per client and week.</li>
+            <li><strong>Triage.</strong> The dashboard ranks clients by attention score so the coach starts with whoever needs the most attention.</li>
+            <li><strong>Review.</strong> For each flagged client, the coach inspects sleep, HRV, resting heart rate, workouts, and steps against the 28-day baseline.</li>
+            <li><strong>Report.</strong> One click produces a PDF with trend deltas, alert summary, and a suggested client message.</li>
+            <li><strong>Send.</strong> The coach pastes the suggested message into the usual client channel and attaches the PDF.</li>
+          </ol>
+
+          <h2 style="margin-top:2rem;">What changes week over week</h2>
+          <ul class="list-check">
+            <li>Recovery composite shift versus baseline (sleep + HRV + resting HR)</li>
+            <li>Workout minutes delta with intensity context</li>
+            <li>Step count drop or streak extension</li>
+            <li>New alerts firing this week (AR-001 to AR-004) with severity</li>
+            <li>Completeness penalty if data coverage was thin</li>
+          </ul>
+
+          <h2 style="margin-top:2rem;">Why this workflow holds up at 30–100 clients</h2>
+          <p>The attention score ranking means the coach does not read every client equally. Low-score clients get the short version; high-score clients get the deep review. Score changes are always traceable to metric changes, so when a client asks why the report looks different from last week, the answer is not guesswork.</p>
+
+          <div class="cta-block reveal" style="margin-top:1.5rem;">
+            <h2>Try this workflow with one client</h2>
+            <p>Import one real Apple Health export and run the full loop. That is the only evaluation that matters.</p>
+            <div class="btn-row">
+              <a class="btn btn--primary" href="/download/">Download for Mac</a>
+              <a class="btn btn--ghost" href="/sample-report/">View Sample Report</a>
+              <a class="btn btn--ghost" href="/for-coaches/">For Coaches</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div data-site-footer></div>
+    <div data-sticky-cta-slot></div>
+  </div>
+</body>
+</html>

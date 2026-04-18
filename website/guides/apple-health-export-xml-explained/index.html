@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en" data-site-root="/">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apple Health Export XML Explained | What's Inside export.xml | Mac Guide</title>
+  <meta name="description" content="Understand the Apple Health export.xml file: structure, record types, source devices, units, and how to turn it into a usable coach workflow on Mac.">
+  <link rel="canonical" href="https://healtheye.app/guides/apple-health-export-xml-explained/">
+  <meta name="theme-color" content="#0e8a77">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script src="/assets/site.js" defer></script>
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="apple-touch-icon" href="/assets/favicon.svg">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Apple Health Export XML Explained">
+  <meta property="og:description" content="What's inside export.xml, and how to go from raw XML to a weekly coach workflow.">
+  <meta property="og:url" content="https://healtheye.app/guides/apple-health-export-xml-explained/">
+  <meta property="og:site_name" content="HealthEye">
+  <meta property="og:image" content="https://healtheye.app/assets/og-image.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Apple Health Export XML Explained">
+  <meta name="twitter:description" content="What's inside export.xml, and how to use it as a coach.">
+  <meta name="twitter:image" content="https://healtheye.app/assets/og-image.svg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        "headline": "Apple Health Export XML Explained",
+        "description": "Structure of the Apple Health export.xml file for coaches and analysts.",
+        "author": { "@type": "Organization", "name": "HealthEye" },
+        "publisher": { "@type": "Organization", "name": "HealthEye" },
+        "datePublished": "2026-04-17",
+        "dateModified": "2026-04-17",
+        "mainEntityOfPage": "https://healtheye.app/guides/apple-health-export-xml-explained/"
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://healtheye.app/" },
+          { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://healtheye.app/guides/apple-health-export-to-csv/" },
+          { "@type": "ListItem", "position": 3, "name": "Apple Health export.xml explained", "item": "https://healtheye.app/guides/apple-health-export-xml-explained/" }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body data-page="guides-xml" data-page-title="Apple Health Export XML Explained" data-sticky-cta-label="Download for Mac" data-sticky-cta-href="/download/">
+  <div class="page-shell">
+    <div data-site-header></div>
+    <main class="page-main">
+      <section class="guide-hero">
+        <div class="container">
+          <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <a href="/">Home</a> <span>/</span>
+            <a href="/guides/apple-health-export-to-csv/">Guides</a> <span>/</span>
+            <span>Apple Health export.xml explained</span>
+          </nav>
+          <div class="card reveal">
+            <div class="eyebrow">Guide</div>
+            <h1>Apple Health export.xml explained: what's actually inside</h1>
+            <p class="lead">The Apple Health export delivers an XML-heavy archive. Here is a plain-language walkthrough of what the file contains, what matters for coaching, and where people get stuck.</p>
+            <p class="small-note">Published April 2026 · For coaches and analysts</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" style="padding-top:.8rem;">
+        <div class="container guide-layout">
+          <article class="guide-content reveal">
+            <div class="quick-answer">
+              <h2 style="margin-top:0;">Quick answer</h2>
+              <p>The Apple Health export produces an archive that contains <code>export.xml</code> (the main file with records and workouts), <code>export_cda.xml</code> (a clinical-format variant), and an <code>electrocardiograms</code> folder when present. For coaching, <code>export.xml</code> is where nearly all the useful data lives.</p>
+            </div>
+
+            <h2 id="structure">File structure</h2>
+            <ul>
+              <li><code>export.xml</code> — all records, workouts, activity summaries, metadata</li>
+              <li><code>export_cda.xml</code> — Clinical Document Architecture format (not commonly used by coaches)</li>
+              <li><code>electrocardiograms/</code> — ECG CSV files when the client has Apple Watch ECG recordings</li>
+              <li><code>workout-routes/</code> — GPX files for outdoor workouts when available</li>
+            </ul>
+
+            <h2 id="record-types">Record types that matter</h2>
+            <p>Within <code>export.xml</code>, each <code>&lt;Record&gt;</code> element has a <code>type</code> attribute. The most important for coaching:</p>
+            <ul>
+              <li><code>HKQuantityTypeIdentifierStepCount</code> — step count</li>
+              <li><code>HKQuantityTypeIdentifierHeartRate</code> — heart rate samples</li>
+              <li><code>HKQuantityTypeIdentifierRestingHeartRate</code> — daily resting heart rate</li>
+              <li><code>HKQuantityTypeIdentifierHeartRateVariabilitySDNN</code> — HRV (SDNN)</li>
+              <li><code>HKCategoryTypeIdentifierSleepAnalysis</code> — sleep stages and totals</li>
+              <li><code>HKWorkoutActivityType*</code> — workout sessions with duration and energy</li>
+            </ul>
+
+            <h2 id="attributes">Important attributes</h2>
+            <ul>
+              <li><code>sourceName</code> — which device or app wrote the record (Apple Watch vs iPhone vs third-party)</li>
+              <li><code>unit</code> — the value's unit, which can vary (bpm, ms, min, kcal)</li>
+              <li><code>startDate</code> / <code>endDate</code> — sample window in local timezone</li>
+              <li><code>value</code> — the measurement</li>
+            </ul>
+
+            <h2 id="pitfalls">Common pitfalls</h2>
+            <ul>
+              <li><strong>File size.</strong> Multi-year exports can exceed 500&nbsp;MB. Naive parsers run out of memory.</li>
+              <li><strong>Duplicate records.</strong> Both iPhone and Apple Watch may log the same metric. Dedupe by <code>sourceName</code> priority before aggregating.</li>
+              <li><strong>Missing days.</strong> Treat missing days as missing, never as zero. This is the single biggest analysis error.</li>
+              <li><strong>Timezone drift.</strong> Travel weeks will have samples in multiple timezones. Group by local day.</li>
+              <li><strong>Sleep model changes.</strong> Apple's sleep stage schema changed; older records only have in-bed vs asleep.</li>
+            </ul>
+
+            <div class="cta-block" style="margin:1rem 0;">
+              <div class="kicker">Skip the Parser</div>
+              <h3 style="font-size:1.35rem;">Let HealthEye handle the XML for you</h3>
+              <p>HealthEye imports <code>export.xml</code> directly on Mac, handles dedup and completeness, and gets you straight to the coaching decision.</p>
+              <div class="btn-row">
+                <a class="btn btn--primary" href="/download/">Download for Mac</a>
+                <a class="btn btn--ghost" href="/sample-report/">View Sample Report</a>
+              </div>
+            </div>
+
+            <h2 id="related">Related reading</h2>
+            <ul class="list-check">
+              <li><a href="/guides/apple-health-export-to-csv/">Apple Health export to CSV</a></li>
+              <li><a href="/guides/apple-health-export-to-excel/">Apple Health export to Excel</a></li>
+              <li><a href="/guides/analyze-apple-watch-health-data-on-mac/">Analyze Apple Watch data on Mac</a></li>
+            </ul>
+          </article>
+
+          <aside class="guide-aside reveal delay-1">
+            <div class="aside-box">
+              <div class="kicker">On This Page</div>
+              <nav class="toc" aria-label="Table of contents">
+                <a href="#structure">File structure</a>
+                <a href="#record-types">Record types</a>
+                <a href="#attributes">Attributes</a>
+                <a href="#pitfalls">Pitfalls</a>
+                <a href="#related">Related reading</a>
+              </nav>
+            </div>
+            <div class="aside-box">
+              <div class="kicker">HealthEye</div>
+              <h3 style="font-size:1.15rem;">Skip the XML parsing</h3>
+              <p>Import Apple Health exports on Mac and generate weekly coach reports without touching raw XML.</p>
+              <div class="btn-row">
+                <a class="btn btn--primary" href="/download/">Download for Mac</a>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+    <div data-site-footer></div>
+    <div data-sticky-cta-slot></div>
+  </div>
+</body>
+</html>
