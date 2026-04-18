@@ -167,8 +167,15 @@ final class HealthEyeUITests: XCTestCase {
         okButton.tap()
 #else
         // On iPad, a share sheet is presented with the generated PDFs.
-        let shareSheet = app.sheets.firstMatch
-        XCTAssertTrue(shareSheet.waitForExistence(timeout: 10))
+        XCTAssertTrue(waitForSystemPresentation(
+            in: app,
+            matching: [
+                app.sheets.firstMatch,
+                app.otherElements["ShareSheet.RemoteContainerView"],
+                app.otherElements["shareSheet.activity.contentView"],
+            ],
+            timeout: 10
+        ))
 #endif
     }
 
@@ -204,8 +211,16 @@ final class HealthEyeUITests: XCTestCase {
         app.typeKey(.escape, modifierFlags: [])
 #else
         // On iPad, the system file exporter is presented as a sheet.
-        let exportSheet = app.sheets.firstMatch
-        XCTAssertTrue(exportSheet.waitForExistence(timeout: 5))
+        XCTAssertTrue(waitForSystemPresentation(
+            in: app,
+            matching: [
+                app.sheets.firstMatch,
+                app.navigationBars["DOCSidebarView"],
+                app.navigationBars["FullDocumentManagerViewControllerNavigationBar"],
+                app.textFields["DOCPicker.filenameTextField"],
+            ],
+            timeout: 15
+        ))
 #endif
     }
 
@@ -221,6 +236,23 @@ final class HealthEyeUITests: XCTestCase {
 #else
         app.cells.containing(.staticText, identifier: label).firstMatch
 #endif
+    }
+
+    private func waitForSystemPresentation(
+        in app: XCUIApplication,
+        matching elements: [XCUIElement],
+        timeout: TimeInterval
+    ) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        repeat {
+            if elements.contains(where: { $0.exists }) {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        } while Date() < deadline
+
+        print("DEBUG HIERARCHY: \(app.debugDescription)")
+        return false
     }
 
     private func launchApp(environment: [String: String] = [:]) -> XCUIApplication {

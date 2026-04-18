@@ -5,6 +5,9 @@ struct ClientDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var accounts: [CoachAccount]
     let client: Client
+    let isBulkGenerating: Bool
+    let onGenerateAllReports: () -> Void
+    let onShowSettings: () -> Void
 
     @State private var showingImportWizard = false
     @State private var showingEditForm = false
@@ -26,11 +29,27 @@ struct ClientDetailView: View {
         client.imports.sorted { $0.importedAt > $1.importedAt }
     }
 
+    init(
+        client: Client,
+        isBulkGenerating: Bool = false,
+        onGenerateAllReports: @escaping () -> Void = {},
+        onShowSettings: @escaping () -> Void = {}
+    ) {
+        self.client = client
+        self.isBulkGenerating = isBulkGenerating
+        self.onGenerateAllReports = onGenerateAllReports
+        self.onShowSettings = onShowSettings
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 // Header
                 headerSection
+
+#if os(iOS)
+                iPadWorkspaceActions
+#endif
 
                 Divider()
 
@@ -143,6 +162,37 @@ struct ClientDetailView: View {
             .accessibilityIdentifier("import-health-data-button")
         }
     }
+
+#if os(iOS)
+    private var iPadWorkspaceActions: some View {
+        HStack(spacing: 12) {
+            Button {
+                onGenerateAllReports()
+            } label: {
+                if isBulkGenerating {
+                    ProgressView()
+                        .controlSize(.small)
+                        .frame(maxWidth: .infinity)
+                } else {
+                    Label("Generate All Reports", systemImage: "doc.badge.arrow.up")
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .buttonStyle(.bordered)
+            .disabled(isBulkGenerating)
+            .accessibilityIdentifier("generate-all-reports-button")
+
+            Button {
+                onShowSettings()
+            } label: {
+                Label("Settings", systemImage: "gearshape")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .accessibilityIdentifier("toolbar-settings")
+        }
+    }
+#endif
 
     private func metricTrendSection(trend: MetricTrend) -> some View {
         VStack(alignment: .leading, spacing: 8) {

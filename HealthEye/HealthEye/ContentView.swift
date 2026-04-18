@@ -76,7 +76,12 @@ struct ContentView: View {
             .navigationSplitViewColumnWidth(min: 220, ideal: 280)
         } detail: {
             if let client = selectedClient {
-                ClientDetailView(client: client)
+                ClientDetailView(
+                    client: client,
+                    isBulkGenerating: isBulkGenerating,
+                    onGenerateAllReports: generateAllReports,
+                    onShowSettings: { showingSettings = true }
+                )
             } else {
                 ContentUnavailableView(
                     "Select a Client",
@@ -330,7 +335,9 @@ struct ContentView: View {
             AnalyticsService.track("bulk_reports_exported", account: account, extra: [
                 "count": String(urls.count),
             ])
+            return
         }
+
         bulkReportResult = BulkReportResult(
             succeeded: result.succeeded,
             failed: result.failed,
@@ -379,7 +386,15 @@ private struct ShareSheet: UIViewControllerRepresentable {
     let items: [Any]
 
     func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: items, applicationActivities: nil)
+        let controller = UIActivityViewController(activityItems: items, applicationActivities: nil)
+        controller.popoverPresentationController?.sourceView = controller.view
+        controller.popoverPresentationController?.sourceRect = CGRect(
+            x: controller.view.bounds.midX,
+            y: controller.view.bounds.midY,
+            width: 1,
+            height: 1
+        )
+        return controller
     }
 
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
