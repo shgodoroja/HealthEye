@@ -104,7 +104,7 @@ struct ReportPreviewView: View {
         }
         .sheet(isPresented: $showingPaywall) {
             if let account {
-                PaywallView(account: account)
+                PaywallView(account: account, surface: "report_gate")
             }
         }
 #if os(macOS)

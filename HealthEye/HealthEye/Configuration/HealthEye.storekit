@@ -67,7 +67,7 @@
       "localizations" : [
 
       ],
-      "name" : "Arclens Plans",
+      "name" : "HealthEye Plans",
       "subscriptions" : [
         {
           "adHocOffers" : [
@@ -80,11 +80,15 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "pro_monthly_001",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "internalID" : "pro_monthly_trial",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P2W"
+          },
           "localizations" : [
             {
               "description" : "Up to 100 clients, priority support, custom branding",
-              "displayName" : "Pro",
+              "displayName" : "Pro Monthly",
               "locale" : "en_US"
             }
           ],
@@ -101,21 +105,83 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "39.99",
+          "displayPrice" : "790.00",
           "familyShareable" : false,
           "groupNumber" : 2,
+          "internalID" : "pro_annual_001",
+          "introductoryOffer" : {
+            "internalID" : "pro_annual_trial",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P2W"
+          },
+          "localizations" : [
+            {
+              "description" : "Up to 100 clients, priority support, custom branding. Billed annually, save ~17%.",
+              "displayName" : "Pro Annual",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "sg.godoroja.Arclens.pro.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Pro Annual",
+          "subscriptionGroupID" : "healtheyeplans",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "39.99",
+          "familyShareable" : false,
+          "groupNumber" : 3,
           "internalID" : "solo_monthly_001",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "internalID" : "solo_monthly_trial",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P2W"
+          },
           "localizations" : [
             {
               "description" : "Up to 30 clients, weekly reports, alert engine",
-              "displayName" : "Solo",
+              "displayName" : "Solo Monthly",
               "locale" : "en_US"
             }
           ],
           "productID" : "sg.godoroja.Arclens.solo.monthly",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Solo Monthly",
+          "subscriptionGroupID" : "healtheyeplans",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "390.00",
+          "familyShareable" : false,
+          "groupNumber" : 4,
+          "internalID" : "solo_annual_001",
+          "introductoryOffer" : {
+            "internalID" : "solo_annual_trial",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P2W"
+          },
+          "localizations" : [
+            {
+              "description" : "Up to 30 clients, weekly reports, alert engine. Billed annually, save ~17%.",
+              "displayName" : "Solo Annual",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "sg.godoroja.Arclens.solo.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Solo Annual",
           "subscriptionGroupID" : "healtheyeplans",
           "type" : "RecurringSubscription"
         }

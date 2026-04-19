@@ -18,14 +18,53 @@ struct StoreManagerTests {
         #expect(StoreManager.planType(for: "com.example.unknown") == .trial)
     }
 
-    // MARK: - Product ID Constants
-
-    @Test func soloProductIDFollowsConvention() {
-        #expect(StoreManager.soloProductID == "sg.godoroja.Arclens.solo.monthly")
+    @Test func soloAnnualProductIDMapsToPlanTypeSolo() {
+        #expect(StoreManager.planType(for: StoreManager.soloAnnualProductID) == .solo)
     }
 
-    @Test func proProductIDFollowsConvention() {
-        #expect(StoreManager.proProductID == "sg.godoroja.Arclens.pro.monthly")
+    @Test func proAnnualProductIDMapsToPlanTypePro() {
+        #expect(StoreManager.planType(for: StoreManager.proAnnualProductID) == .pro)
+    }
+
+    // MARK: - Billing Period Mapping
+
+    @Test func soloMonthlyMapsToMonthly() {
+        #expect(StoreManager.billingPeriod(for: StoreManager.soloMonthlyProductID) == .monthly)
+    }
+
+    @Test func proMonthlyMapsToMonthly() {
+        #expect(StoreManager.billingPeriod(for: StoreManager.proMonthlyProductID) == .monthly)
+    }
+
+    @Test func soloAnnualMapsToAnnual() {
+        #expect(StoreManager.billingPeriod(for: StoreManager.soloAnnualProductID) == .annual)
+    }
+
+    @Test func proAnnualMapsToAnnual() {
+        #expect(StoreManager.billingPeriod(for: StoreManager.proAnnualProductID) == .annual)
+    }
+
+    // MARK: - Product ID Constants
+
+    @Test func soloMonthlyProductIDFollowsConvention() {
+        #expect(StoreManager.soloMonthlyProductID == "sg.godoroja.Arclens.solo.monthly")
+    }
+
+    @Test func proMonthlyProductIDFollowsConvention() {
+        #expect(StoreManager.proMonthlyProductID == "sg.godoroja.Arclens.pro.monthly")
+    }
+
+    @Test func soloAnnualProductIDFollowsConvention() {
+        #expect(StoreManager.soloAnnualProductID == "sg.godoroja.Arclens.solo.annual")
+    }
+
+    @Test func proAnnualProductIDFollowsConvention() {
+        #expect(StoreManager.proAnnualProductID == "sg.godoroja.Arclens.pro.annual")
+    }
+
+    @Test func legacyAliasesStillResolve() {
+        #expect(StoreManager.soloProductID == StoreManager.soloMonthlyProductID)
+        #expect(StoreManager.proProductID == StoreManager.proMonthlyProductID)
     }
 
     // MARK: - Sync Entitlement via TrialManager

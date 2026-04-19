@@ -165,7 +165,7 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showingPaywall) {
             if let account {
-                PaywallView(account: account)
+                PaywallView(account: account, surface: "menu")
             } else {
                 Text("Loading…").onAppear { showingPaywall = false }
             }
