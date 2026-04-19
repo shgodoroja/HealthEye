@@ -8,6 +8,7 @@ import UIKit
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(StoreManager.self) private var storeManager
     @Query(sort: \Client.displayName)
     private var allClients: [Client]
     @Query private var accounts: [CoachAccount]
@@ -176,6 +177,7 @@ struct ContentView: View {
 #endif
         .onAppear {
             refreshScores()
+            syncEntitlementFromStore()
             // Never show onboarding during any kind of test run — the
             // bootstrapper seeds accounts with onboardingCompleted=true.
             guard !UITestBootstrapper.isEnabled,
@@ -193,6 +195,9 @@ struct ContentView: View {
         }
         .onChange(of: imports.count) {
             refreshScores()
+        }
+        .onChange(of: storeManager.currentEntitlement) {
+            syncEntitlementFromStore()
         }
     }
 
@@ -367,6 +372,16 @@ struct ContentView: View {
             lines.append("\(result.failed.count) failed: \(result.failed.joined(separator: ", ")).")
         }
         return lines.joined(separator: "\n")
+    }
+
+    @MainActor
+    private func syncEntitlementFromStore() {
+        guard let account else { return }
+        _ = TrialManager.syncEntitlement(
+            from: storeManager,
+            to: account,
+            context: modelContext
+        )
     }
 }
 

@@ -48,14 +48,34 @@ struct TrialManager {
 
     // MARK: - Entitlement Sync
 
-    static func syncEntitlement(from storeManager: StoreManager, to account: CoachAccount) {
-        let entitlement = storeManager.currentEntitlement
+    @discardableResult
+    static func syncEntitlement(_ entitlement: PlanType, to account: CoachAccount) -> Bool {
+        let oldPlan = account.planType
         if entitlement != .trial && account.planType != entitlement {
             selectPlan(entitlement, account: account)
         } else if entitlement == .trial && account.planType != .trial {
             // Subscription lapsed or was revoked
             account.planType = .trial
         }
+        return account.planType != oldPlan
+    }
+
+    static func syncEntitlement(from storeManager: StoreManager, to account: CoachAccount) {
+        _ = syncEntitlement(storeManager.currentEntitlement, to: account)
+    }
+
+    @MainActor
+    @discardableResult
+    static func syncEntitlement(
+        from storeManager: StoreManager,
+        to account: CoachAccount,
+        context: ModelContext
+    ) -> Bool {
+        let didChange = syncEntitlement(storeManager.currentEntitlement, to: account)
+        if didChange {
+            try? context.save()
+        }
+        return didChange
     }
 
     // MARK: - Plan Selection

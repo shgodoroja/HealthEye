@@ -81,7 +81,11 @@ struct ArclensApp: App {
                     let context = sharedModelContainer.mainContext
                     let descriptor = FetchDescriptor<CoachAccount>()
                     guard let account = try? context.fetch(descriptor).first else { return }
-                    TrialManager.syncEntitlement(from: storeManager, to: account)
+                    _ = TrialManager.syncEntitlement(
+                        from: storeManager,
+                        to: account,
+                        context: context
+                    )
                 }
         }
         .modelContainer(sharedModelContainer)

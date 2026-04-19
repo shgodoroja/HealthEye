@@ -1,6 +1,11 @@
 import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
+#if canImport(AppKit)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 
 // MARK: - Generic export document for .fileExporter
 
@@ -208,6 +213,11 @@ struct SettingsView: View {
                 .foregroundStyle(.secondary)
 
             LabeledContent("Version") { Text("1.0.0") }
+
+            Button("Manage Subscription") {
+                openManageSubscriptions()
+            }
+            .accessibilityIdentifier("settings-manage-subscription")
         }
     }
 
@@ -255,5 +265,15 @@ struct SettingsView: View {
     private func deleteAllData() {
         AnalyticsService.track("data_deleted", properties: ["scope": "all"])
         for client in allClients { modelContext.delete(client) }
+    }
+
+    @MainActor
+    private func openManageSubscriptions() {
+        let url = URL(string: "https://apps.apple.com/account/subscriptions")!
+        #if canImport(UIKit)
+        UIApplication.shared.open(url)
+        #elseif canImport(AppKit)
+        NSWorkspace.shared.open(url)
+        #endif
     }
 }

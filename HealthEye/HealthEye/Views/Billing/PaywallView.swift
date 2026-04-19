@@ -1,6 +1,11 @@
 import SwiftUI
 import SwiftData
 import StoreKit
+#if canImport(AppKit)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 
 struct PaywallView: View {
     @Environment(\.modelContext) private var modelContext
@@ -8,9 +13,20 @@ struct PaywallView: View {
     @Environment(StoreManager.self) private var storeManager
 
     let account: CoachAccount
+    @State private var restoreMessage: String?
+
+    private var effectivePlan: PlanType {
+        if storeManager.currentEntitlement == .pro || account.planType == .pro {
+            return .pro
+        }
+        if storeManager.currentEntitlement == .solo || account.planType == .solo {
+            return .solo
+        }
+        return .trial
+    }
 
     private var viewState: PaywallState {
-        switch account.planType {
+        switch effectivePlan {
         case .trial:
             if TrialManager.isTrialExpired(account: account) {
                 return .trialExpired
@@ -43,6 +59,8 @@ struct PaywallView: View {
                 VStack(spacing: 20) {
                     trialBanner
 
+                    restoreBanner
+
                     errorBanner
 
                     HStack(spacing: 16) {
@@ -69,7 +87,19 @@ struct PaywallView: View {
                     .padding(.horizontal)
 
                     Button("Restore Purchases") {
-                        Task { await storeManager.restorePurchases() }
+                        Task {
+                            await storeManager.restorePurchases()
+                            _ = TrialManager.syncEntitlement(
+                                from: storeManager,
+                                to: account,
+                                context: modelContext
+                            )
+                            if storeManager.currentEntitlement == .trial {
+                                restoreMessage = "No active subscriptions were found for this Apple ID."
+                            } else {
+                                restoreMessage = "Purchases restored successfully."
+                            }
+                        }
                     }
                     #if os(macOS)
                     .buttonStyle(.link)
@@ -79,6 +109,18 @@ struct PaywallView: View {
                     #endif
                     .font(.callout)
                     .padding(.bottom, 8)
+
+                    Button("Manage Subscription") {
+                        openManageSubscriptions()
+                    }
+                    #if os(macOS)
+                    .buttonStyle(.link)
+                    #else
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.tint)
+                    #endif
+                    .font(.callout)
+                    .accessibilityIdentifier("paywall-manage-subscription")
                 }
                 .padding(.vertical, 24)
             }
@@ -86,10 +128,23 @@ struct PaywallView: View {
         .frame(minWidth: 550, minHeight: 450)
         .onAppear {
             AnalyticsService.track("paywall_viewed", account: account)
+            Task {
+                await storeManager.loadProducts()
+                await storeManager.refreshEntitlement()
+                _ = TrialManager.syncEntitlement(
+                    from: storeManager,
+                    to: account,
+                    context: modelContext
+                )
+            }
         }
         .onChange(of: storeManager.currentEntitlement) { _, newEntitlement in
             if newEntitlement != .trial {
-                TrialManager.selectPlan(newEntitlement, account: account)
+                _ = TrialManager.syncEntitlement(
+                    from: storeManager,
+                    to: account,
+                    context: modelContext
+                )
                 AnalyticsService.track("plan_selected", account: account, extra: ["plan": newEntitlement.rawValue])
                 dismiss()
             }
@@ -143,6 +198,23 @@ struct PaywallView: View {
     }
 
     // MARK: - Error Banner
+
+    @ViewBuilder
+    private var restoreBanner: some View {
+        if let restoreMessage {
+            HStack {
+                Image(systemName: "info.circle.fill")
+                    .foregroundStyle(.blue)
+                Text(restoreMessage)
+                    .font(.callout)
+                    .lineLimit(2)
+            }
+            .padding()
+            .frame(maxWidth: .infinity)
+            .background(Color.blue.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
+            .padding(.horizontal)
+        }
+    }
 
     @ViewBuilder
     private var errorBanner: some View {
@@ -205,7 +277,7 @@ struct PaywallView: View {
 
             Spacer()
 
-            if account.planType == planType {
+            if effectivePlan == planType {
                 Text("Current Plan")
                     .font(.callout)
                     .fontWeight(.medium)
@@ -246,5 +318,15 @@ struct PaywallView: View {
         case trialActive(daysLeft: Int)
         case trialExpired
         case subscribed(PlanType)
+    }
+
+    @MainActor
+    private func openManageSubscriptions() {
+        let url = URL(string: "https://apps.apple.com/account/subscriptions")!
+        #if canImport(UIKit)
+        UIApplication.shared.open(url)
+        #elseif canImport(AppKit)
+        NSWorkspace.shared.open(url)
+        #endif
     }
 }

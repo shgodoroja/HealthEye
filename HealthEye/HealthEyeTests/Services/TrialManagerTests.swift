@@ -83,4 +83,30 @@ struct TrialManagerTests {
         #expect(account.trialStartAt == nil)
         #expect(account.trialEndAt == nil)
     }
+
+    // MARK: - Entitlement Sync
+
+    @Test func syncEntitlementUpgradesPlanAndClearsTrial() {
+        let account = makeAccount(
+            planType: .trial,
+            trialStartAt: Date(),
+            trialEndAt: Calendar.current.date(byAdding: .day, value: 10, to: Date())!
+        )
+
+        let changed = TrialManager.syncEntitlement(.pro, to: account)
+
+        #expect(changed)
+        #expect(account.planType == .pro)
+        #expect(account.trialStartAt == nil)
+        #expect(account.trialEndAt == nil)
+    }
+
+    @Test func syncEntitlementDowngradesToTrialWhenSubscriptionEnds() {
+        let account = makeAccount(planType: .solo)
+
+        let changed = TrialManager.syncEntitlement(.trial, to: account)
+
+        #expect(changed)
+        #expect(account.planType == .trial)
+    }
 }
